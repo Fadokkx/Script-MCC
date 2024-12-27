@@ -32,16 +32,13 @@ Corr_Parana = "https://www.prconsig.seap.pr.gov.br/pr/v3/autenticarUsuario?t=202
 """
 Corr_PrefCuritiba = "https://www2.econsig.com.br/curitiba/v3/autenticarUsuario?t=20230904104333#no-back"
 Corr_HospDoServPubSP = "https://www2.econsig.com.br/hspm/v3/autenticarUsuario#no-back"
-"""
-Achar erro na Corretora da prefeitura de Recife
-Corr_PrefRecife = "www.faciltecnologia.com.br/consigfacil/recife/index.php"
-"""
+Corr_PrefRecife = "https://www.faciltecnologia.com.br/consigfacil/recife/index.php"
 
 # Pega variaveis de login de ambiente do sistema 
 try:
-    Username_Values = os.getenv("Username_Values")
+    ZETRA_Username_Values = os.getenv("ZETRA_Username_Values")
     Password_Values = os.getenv("Password_Values")
-    if not all ([Username_Values,Password_Values]):
+    if not all ([ZETRA_Username_Values,Password_Values]):
         raise ValueError("Coloque as variáveis do ambiente")   
 except Exception as e:
     print("Não foi possível achar os valores")
@@ -52,7 +49,7 @@ driver.get(Corr_EMBU)
 assert "SISTEMA DIGITAL DE CONSIGNAÇÕES" in driver.title
 elem = driver.find_element(By.ID, "username")
 elem.clear()
-elem.send_keys(Username_Values)
+elem.send_keys(ZETRA_Username_Values)
 elem.send_keys(Keys.RETURN)
 assert "No results found." not in driver.page_source
 
@@ -79,7 +76,7 @@ driver.get(Corr_HospDoServPubSP)
 assert "SISTEMA DIGITAL DE CONSIGNAÇÕES" in driver.title
 elem = driver.find_element(By.ID, "username")
 elem.clear()
-elem.send_keys(Username_Values)
+elem.send_keys(ZETRA_Username_Values)
 elem.send_keys(Keys.RETURN)
 assert "No results found." not in driver.page_source
 
@@ -88,7 +85,7 @@ driver.get(Corr_IGEPREV)
 assert "SISTEMA DIGITAL DE CONSIGNAÇÕES" in driver.title
 elem = driver.find_element(By.ID, "username")
 elem.clear()
-elem.send_keys(Username_Values)
+elem.send_keys(ZETRA_Username_Values)
 elem.send_keys(Keys.RETURN)
 assert "No results found." not in driver.page_source
 
@@ -96,6 +93,7 @@ assert "No results found." not in driver.page_source
 driver.get(Corr_IPSEM_CampinaGrande)
 
 """
+Só liberar Corretora da Prefeitura do Paraná Após resolver o erro da Variável
 #Começa o login na corretora do Paraná
 driver.get(Corr_Parana)
 assert "SISTEMA DIGITAL DE CONSIGNAÇÕES" in driver.title
@@ -117,7 +115,7 @@ driver.get(Corr_Pref_Serra_ES)
 assert "SISTEMA DIGITAL DE CONSIGNAÇÕES" in driver.title
 elem = driver.find_element(By.ID, "username")
 elem.clear()
-elem.send_keys(Username_Values)
+elem.send_keys(ZETRA_Username_Values)
 elem.send_keys(Keys.RETURN)
 assert "No results found." not in driver.page_source
 
@@ -126,7 +124,7 @@ driver.get(Corr_PrefCuritiba)
 assert "SISTEMA DIGITAL DE CONSIGNAÇÕES" in driver.title
 elem = driver.find_element(By.ID, "username")
 elem.clear()
-elem.send_keys(Username_Values)
+elem.send_keys(ZETRA_Username_Values)
 elem.send_keys(Keys.RETURN)
 assert "No results found." not in driver.page_source
 
@@ -136,15 +134,15 @@ driver.get(Corr_PrefJoaoPessoa)
 #Começa o login na corretora de Porto Velho
 driver.get(Corr_PrefPortoVelho)
 
-#Só liberar Corretora da Prefeitura de Recife Após resolver a Variável
-#driver.get(Corr_PrefRecife)
+#Começa o login na corretora da prefeitura de Recife
+driver.get(Corr_PrefRecife)
 
 #Começa o login na corretora de São Bernardo do Campo
 driver.get(Corr_PrefSBC)
 assert "SISTEMA DIGITAL DE CONSIGNAÇÕES" in driver.title
 elem = driver.find_element(By.ID, "username")
 elem.clear()
-elem.send_keys(Username_Values)
+elem.send_keys(ZETRA_Username_Values)
 elem.send_keys(Keys.RETURN)
 assert "No results found." not in driver.page_source
 
@@ -153,7 +151,7 @@ driver.get(Corr_PrefUberlandia)
 assert "SISTEMA DIGITAL DE CONSIGNAÇÕES" in driver.title
 elem = driver.find_element(By.ID, "username")
 elem.clear()
-elem.send_keys(Username_Values)
+elem.send_keys(ZETRA_Username_Values)
 elem.send_keys(Keys.RETURN)
 assert "No results found." not in driver.page_source
 

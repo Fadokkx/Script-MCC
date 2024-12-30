@@ -39,14 +39,14 @@ Proc_PrefRecife = "https://www.faciltecnologia.com.br/consigfacil/recife/index.p
 #NEOCONSIG
 Proc_RJ = "https://rioconsig.com.br/rioconsig/login"
 
-#Mesmo Site NeoConsig
+#Mesmo Site da NeoConsig
 Proc_Guarulhos=	"https://www.neoconsig.com.br/neoconsig/" 
 Proc_GovGoias = "https://www.neoconsig.com.br/neoconsig/"
 Proc_Sorocaba = "https://www.neoconsig.com.br/neoconsig/"
 Proc_Alagoas = "https://www.neoconsig.com.br/neoconsig/"
 
 
-# Pega variaveis de login Zetra de ambiente do sistema 
+# Pega variaveis de login Zetra de ambiente do sistema (Placheholders)
 try:
     ZETRA_Username_Values = os.getenv("ZETRA_Username_Values")
     Password_Values = os.getenv("Password_Values")
@@ -58,7 +58,7 @@ except Exception as e:
 """
 Aguardando Valores para evitar erros
 
-# Pega variaveis de login NeoConsig de ambiente do sistema 
+# Pega variaveis de login NeoConsig de ambiente do sistema (PlaceHolders)
 try:
     NeoConsig_Username_Values = os.getenv("NeoConsig_Username_Values")
     NeoConsig_Psw_Values = os.getenv("NeoConsig_Psw_Values")
@@ -67,7 +67,7 @@ try:
 except Exception as e:
     print(f"Erro {e}")
 
-# Pega variaveis de login CIP de ambiente do sistema 
+# Pega variaveis de login CIP de ambiente do sistema (PlaceHolders)
 try:
     Cip_Username_Values = os.getenv("Cip_Username_Values")
     if not all ([Cip_Username_Values,Password_Values]):
@@ -75,7 +75,7 @@ try:
 except Exception as e:
     print(f"Erro {e}")
 """
-# Pega variaveis de login CONSIGFACIL de ambiente do sistema
+# Pega variaveis de login CONSIGFACIL de ambiente do sistema (PlaceHolders)
 try:
     ConsigFacil_Username_Values = os.getenv("ConsigFacil_Username_Values")
     ConsigFacil_Psw_Values = os.getenv("ConsigFacil_Psw_Values")
@@ -84,7 +84,7 @@ try:
 except Exception as e:
     print(f"Erro {e}")
 
-#Pega variavel de login NEOCONSIG do ambiente do sistema
+#Pega variavel de login NEOCONSIG do ambiente do sistema (PlaceHolders)
 try:
     Codigo_NeoConsig = os.gentenv("Codigo_NeoConsig")
     if not all ([Codigo_NeoConsig]):
@@ -94,6 +94,9 @@ except Exception as e:
 
 #Variaveis Comandos Selenium
 driver = webdriver.Edge()
+driver.maximize_window() #Recomendo desabilitar caso não use monitor secundário
+
+#Keys para chamada mais rápida
 Seta_Baixo = Keys.ARROW_DOWN
 Enter = Keys.RETURN
 Tab = Keys.TAB
@@ -107,7 +110,6 @@ UserZetra = driver.find_element(By.ID, "username")
 UserZetra.clear()
 UserZetra.send_keys(ZETRA_Username_Values)
 UserZetra.send_keys(Enter)
-time.sleep(10) #Tempo pra resolver o captcha
 PswZetra = driver.find_element(By.NAME, "senha")
 PswZetra.clear()
 PswZetra.send_keys("123")
@@ -127,7 +129,6 @@ UserZetra = driver.find_element(By.ID, "username")
 UserZetra.clear()
 UserZetra.send_keys(ZETRA_Username_Values)
 UserZetra.send_keys(Enter)
-time.sleep(7) #Tempo pra resolver o captcha
 PswZetra = driver.find_element(By.NAME, "senha")
 PswZetra.clear()
 PswZetra.send_keys("123")
@@ -139,7 +140,7 @@ CaptchaZetra.send_keys(Keys.RETURN)
 time.sleep(1)
 #assert "No results found." not in driver.page_source
 
-#Começa o login na Processadora dA IGPREV
+#Começa o login na Processadora da IGPREV
 driver.get(Proc_IGEPREV)
 assert "SISTEMA DIGITAL DE CONSIGNAÇÕES" in driver.title
 assert "SISTEMA DIGITAL DE CONSIGNAÇÕES" in driver.title
@@ -147,7 +148,6 @@ UserZetra = driver.find_element(By.ID, "username")
 UserZetra.clear()
 UserZetra.send_keys(ZETRA_Username_Values)
 UserZetra.send_keys(Keys.RETURN)
-time.sleep(7) #Tempo pra resolver o captcha
 PswZetra = driver.find_element(By.NAME, "senha")
 PswZetra.clear()
 PswZetra.send_keys("123")
@@ -169,7 +169,6 @@ UserZetra = driver.find_element(By.ID, "username")
 UserZetra.clear()
 UserZetra.send_keys(ZETRA_Username_Values)
 UserZetra.send_keys(Keys.RETURN)
-time.sleep(7) #Tempo pra resolver o captcha
 PswZetra = driver.find_element(By.NAME, "senha")
 PswZetra.clear()
 PswZetra.send_keys("123")
@@ -189,7 +188,6 @@ UserZetra = driver.find_element(By.ID, "username")
 UserZetra.clear()
 UserZetra.send_keys(ZETRA_Username_Values)
 UserZetra.send_keys(Keys.RETURN)
-time.sleep(7) #Tempo pra resolver o captcha
 PswZetra = driver.find_element(By.NAME, "senha")
 PswZetra.clear()
 PswZetra.send_keys("123")
@@ -208,7 +206,6 @@ UserZetra = driver.find_element(By.ID, "username")
 UserZetra.clear()
 UserZetra.send_keys(ZETRA_Username_Values)
 UserZetra.send_keys(Keys.RETURN)
-time.sleep(7) #Tempo pra resolver o captcha
 PswZetra = driver.find_element(By.NAME, "senha")
 PswZetra.clear()
 PswZetra.send_keys("123")
@@ -227,7 +224,6 @@ UserZetra = driver.find_element(By.ID, "username")
 UserZetra.clear()
 UserZetra.send_keys(ZETRA_Username_Values)
 UserZetra.send_keys(Keys.RETURN)
-time.sleep(7) #Tempo pra resolver o captcha
 PswZetra = driver.find_element(By.NAME, "senha")
 PswZetra.clear()
 PswZetra.send_keys("123")
@@ -246,7 +242,6 @@ UserZetra = driver.find_element(By.ID, "username")
 UserZetra.clear()
 UserZetra.send_keys(ZETRA_Username_Values)
 UserZetra.send_keys(Keys.RETURN)
-time.sleep(7) #Tempo pra resolver o captcha
 PswZetra = driver.find_element(By.NAME, "senha")
 PswZetra.clear()
 PswZetra.send_keys("123")
@@ -388,10 +383,15 @@ ConsigFacilCaptcha.send_keys(ConsigFacil_CaptchaResolver)
 Psw_ConsigFacil.send_keys(Keys.RETURN)
 time.sleep(1) 
 
+"""
+Resolver na mão ou achar uma maneira de tornar o navbar mais fácil de Selecionar
+
 #Logins na NEOCONSIG---------------------------------------------------------
 
 #Começa o login na Processadora de Alagoas
 driver.get(Proc_Alagoas)
+Navigation = driver.find_element(By.ID, "navbarDropdown").click()
+time.sleep(3)
 
 #Começa o login na Processadora de Goias
 driver.get(Proc_GovGoias)
@@ -401,6 +401,7 @@ driver.get(Proc_Guarulhos)
 
 #Começa o login na Processadora de Sorocaba
 driver.get(Proc_Sorocaba)
+"""
 
 #Começa o login na Processadora do Rio De Janeiro
 driver.get(Proc_RJ)
@@ -417,4 +418,5 @@ NeoConsig_Captcha = driver.find_element(By.ID, "captcha_code")
 NeoConsig_Captcha.send_keys(NeoConsig_Captcha_Resolver)
 Login_Proc_RJ.send_keys(Tab)
 Login_Proc_RJ.send_keys(Enter)
+time.sleep(5)
 

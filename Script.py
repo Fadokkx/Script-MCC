@@ -22,15 +22,6 @@ Proc_Parana = "https://www.prconsig.seap.pr.gov.br/pr/v3/autenticarUsuario?t=202
 Proc_PrefCuritiba = "https://www2.econsig.com.br/curitiba/v3/autenticarUsuario?t=20230904104333#no-back"
 Proc_HospDoServPubSP = "https://www2.econsig.com.br/hspm/v3/autenticarUsuario#no-back"
 
-#NEOCONSIG
-Proc_RJ = "https://rioconsig.com.br/rioconsig/"
-
-#Mesmo Site NeoConsig
-Proc_Guarulhos=	"https://www.neoconsig.com.br/neoconsig/" 
-Proc_GovGoias = "https://www.neoconsig.com.br/neoconsig/"
-Proc_Sorocaba = "https://www.neoconsig.com.br/neoconsig/"
-Proc_Alagoas = "https://www.neoconsig.com.br/neoconsig/"
-
 #CIP
 Proc_GovPefSP = "https://www.portaldoconsignado.org.br/home?37"
 Proc_MatoGrosso = "https://www.portaldoconsignado.com.br/home?9"
@@ -44,6 +35,16 @@ Proc_GovMaranhao = "https://www.faciltecnologia.com.br/consigfacil/maranhao/inde
 Proc_PrefPortoVelho = "https://www.faciltecnologia.com.br/consigfacil/portovelho/"
 Proc_GovPernambuco = "https://www.peconsig.pe.gov.br/index.php"
 Proc_PrefRecife = "https://www.faciltecnologia.com.br/consigfacil/recife/index.php"
+
+#NEOCONSIG
+Proc_RJ = "https://rioconsig.com.br/rioconsig/login"
+
+#Mesmo Site NeoConsig
+Proc_Guarulhos=	"https://www.neoconsig.com.br/neoconsig/" 
+Proc_GovGoias = "https://www.neoconsig.com.br/neoconsig/"
+Proc_Sorocaba = "https://www.neoconsig.com.br/neoconsig/"
+Proc_Alagoas = "https://www.neoconsig.com.br/neoconsig/"
+
 
 # Pega variaveis de login Zetra de ambiente do sistema 
 try:
@@ -83,11 +84,20 @@ try:
 except Exception as e:
     print(f"Erro {e}")
 
+#Pega variavel de login NEOCONSIG do ambiente do sistema
+try:
+    Codigo_NeoConsig = os.gentenv("Codigo_NeoConsig")
+    if not all ([Codigo_NeoConsig]):
+        raise ValueError ("Coloque os valores nas variaveis do ambiente")
+except Exception as e:
+    print(f"Erro {e}")
+
 #Variaveis Comandos Selenium
 driver = webdriver.Edge()
 Seta_Baixo = Keys.ARROW_DOWN
 Enter = Keys.RETURN
 Tab = Keys.TAB
+
 #Logins na ZETRA---------------------------------------------------------
 
 #Começa o login na Processadora de EMBU
@@ -117,7 +127,7 @@ UserZetra = driver.find_element(By.ID, "username")
 UserZetra.clear()
 UserZetra.send_keys(ZETRA_Username_Values)
 UserZetra.send_keys(Enter)
-time.sleep(10) #Tempo pra resolver o captcha
+time.sleep(7) #Tempo pra resolver o captcha
 PswZetra = driver.find_element(By.NAME, "senha")
 PswZetra.clear()
 PswZetra.send_keys("123")
@@ -137,7 +147,7 @@ UserZetra = driver.find_element(By.ID, "username")
 UserZetra.clear()
 UserZetra.send_keys(ZETRA_Username_Values)
 UserZetra.send_keys(Keys.RETURN)
-time.sleep(10) #Tempo pra resolver o captcha
+time.sleep(7) #Tempo pra resolver o captcha
 PswZetra = driver.find_element(By.NAME, "senha")
 PswZetra.clear()
 PswZetra.send_keys("123")
@@ -159,7 +169,7 @@ UserZetra = driver.find_element(By.ID, "username")
 UserZetra.clear()
 UserZetra.send_keys(ZETRA_Username_Values)
 UserZetra.send_keys(Keys.RETURN)
-time.sleep(10) #Tempo pra resolver o captcha
+time.sleep(7) #Tempo pra resolver o captcha
 PswZetra = driver.find_element(By.NAME, "senha")
 PswZetra.clear()
 PswZetra.send_keys("123")
@@ -179,7 +189,7 @@ UserZetra = driver.find_element(By.ID, "username")
 UserZetra.clear()
 UserZetra.send_keys(ZETRA_Username_Values)
 UserZetra.send_keys(Keys.RETURN)
-time.sleep(10) #Tempo pra resolver o captcha
+time.sleep(7) #Tempo pra resolver o captcha
 PswZetra = driver.find_element(By.NAME, "senha")
 PswZetra.clear()
 PswZetra.send_keys("123")
@@ -198,7 +208,7 @@ UserZetra = driver.find_element(By.ID, "username")
 UserZetra.clear()
 UserZetra.send_keys(ZETRA_Username_Values)
 UserZetra.send_keys(Keys.RETURN)
-time.sleep(10) #Tempo pra resolver o captcha
+time.sleep(7) #Tempo pra resolver o captcha
 PswZetra = driver.find_element(By.NAME, "senha")
 PswZetra.clear()
 PswZetra.send_keys("123")
@@ -217,7 +227,7 @@ UserZetra = driver.find_element(By.ID, "username")
 UserZetra.clear()
 UserZetra.send_keys(ZETRA_Username_Values)
 UserZetra.send_keys(Keys.RETURN)
-time.sleep(10) #Tempo pra resolver o captcha
+time.sleep(7) #Tempo pra resolver o captcha
 PswZetra = driver.find_element(By.NAME, "senha")
 PswZetra.clear()
 PswZetra.send_keys("123")
@@ -236,7 +246,7 @@ UserZetra = driver.find_element(By.ID, "username")
 UserZetra.clear()
 UserZetra.send_keys(ZETRA_Username_Values)
 UserZetra.send_keys(Keys.RETURN)
-time.sleep(10) #Tempo pra resolver o captcha
+time.sleep(7) #Tempo pra resolver o captcha
 PswZetra = driver.find_element(By.NAME, "senha")
 PswZetra.clear()
 PswZetra.send_keys("123")
@@ -247,32 +257,6 @@ CaptchaZetra.send_keys(ZetraCaptcha_Resolver)
 CaptchaZetra.send_keys(Keys.RETURN)
 time.sleep(1)
 #assert "No results found." not in driver.page_source
-
-
-#Logins na NEOCONSIG---------------------------------------------------------
-
-#Começa o login na Processadora de Alagoas
-driver.get(Proc_Alagoas)
-
-#Começa o login na Processadora de Goias
-driver.get(Proc_GovGoias)
-
-#Começa o login na Processadora de Guarulhos
-driver.get(Proc_Guarulhos)
-
-#Começa o login na Processadora de Sorocaba
-driver.get(Proc_Sorocaba)
-
-#Começa o login na Processadora do Rio De Janeiro
-driver.get(Proc_RJ)
-Click_LogPage = driver.find_element(By.ID, "btn-acessar-sistema")
-Click_LogPage.send_keys(Keys.LEFT)
-Select_Acess = driver.find_element(By.ID, "tipo_acesso")
-Select_Acess.send_keys(Seta_Baixo)
-
-
-
-
 
 #Logins na CIP---------------------------------------------------------
 
@@ -314,7 +298,7 @@ ConsigFacilCaptcha.send_keys(ConsigFacil_CaptchaResolver)
 Psw_ConsigFacil.send_keys(Keys.RETURN)
 time.sleep(1) 
 
-#Começa o Login no Processadora de previdência de Campina Grande
+#Começa o Login no Processadora do Instituto de previdência de Campina Grande
 driver.get(Proc_IPSEM_CampinaGrande)
 #assert "ConsigFácil - Campina Grande" in driver.title
 User_ConsigFacil = driver.find_element (By.ID, "usuario")
@@ -404,4 +388,33 @@ ConsigFacilCaptcha.send_keys(ConsigFacil_CaptchaResolver)
 Psw_ConsigFacil.send_keys(Keys.RETURN)
 time.sleep(1) 
 
+#Logins na NEOCONSIG---------------------------------------------------------
+
+#Começa o login na Processadora de Alagoas
+driver.get(Proc_Alagoas)
+
+#Começa o login na Processadora de Goias
+driver.get(Proc_GovGoias)
+
+#Começa o login na Processadora de Guarulhos
+driver.get(Proc_Guarulhos)
+
+#Começa o login na Processadora de Sorocaba
+driver.get(Proc_Sorocaba)
+
+#Começa o login na Processadora do Rio De Janeiro
+driver.get(Proc_RJ)
+Consig_Log = driver.find_element(By.ID, "btn-acessar-sistema").click()
+Click_Acess = driver.find_element(By.ID, "tipo_acesso")
+Click_Acess.send_keys(Enter)
+Select_Acess = driver.find_element(By.ID, "tipo_acesso")
+Select_Acess.send_keys(Seta_Baixo)
+Select_Acess.send_keys(Seta_Baixo)
+Login_Proc_RJ = driver.find_element (By.ID, "cod_acesso")
+Login_Proc_RJ.send_keys("Codigo_NeoConsig")
+NeoConsig_Captcha_Resolver = input("Digite o Captcha: ")
+NeoConsig_Captcha = driver.find_element(By.ID, "captcha_code")
+NeoConsig_Captcha.send_keys(NeoConsig_Captcha_Resolver)
+Login_Proc_RJ.send_keys(Tab)
+Login_Proc_RJ.send_keys(Enter)
 

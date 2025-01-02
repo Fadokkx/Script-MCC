@@ -1,6 +1,9 @@
 import os
 import time
 from selenium import webdriver
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.edge.service import Service as EdgeService
 from webdriver_manager.microsoft import EdgeChromiumDriverManager
 from selenium.webdriver.common.keys import Keys
@@ -383,15 +386,22 @@ ConsigFacilCaptcha.send_keys(ConsigFacil_CaptchaResolver)
 Psw_ConsigFacil.send_keys(Keys.RETURN)
 time.sleep(1) 
 
-"""
-Resolver na mão ou achar uma maneira de tornar o navbar mais fácil de Selecionar
-
 #Logins na NEOCONSIG---------------------------------------------------------
 
 #Começa o login na Processadora de Alagoas
 driver.get(Proc_Alagoas)
-Navigation = driver.find_element(By.ID, "navbarDropdown").click()
+Find_DropBar = driver.find_element(By.XPATH, "/html/body/header/nav/div/div[2]/ul/li/a/button").click()
+"""
+
+Click_DropBar = driver.find_element(By.XPATH, "/html/body/header/nav/div/div[2]/ul/li/ul/li[3]/a").click()
+Select_Acess_DropBar = driver.find_element(By.XPATH, "/html/body/header/nav/div/div[1]/ul/li[6]/ul/li[3]/a").click()
+Acess_DropBar = driver.find_element(By.XPATH, "/html/body/header/nav/div/div[4]/form/input[1]")
+Acess_DropBar.send_keys("Login_NeoConsig")
 time.sleep(3)
+
+"""
+
+"""
 
 #Começa o login na Processadora de Goias
 driver.get(Proc_GovGoias)
@@ -401,8 +411,8 @@ driver.get(Proc_Guarulhos)
 
 #Começa o login na Processadora de Sorocaba
 driver.get(Proc_Sorocaba)
-"""
 
+"""
 #Começa o login na Processadora do Rio De Janeiro
 driver.get(Proc_RJ)
 Consig_Log = driver.find_element(By.ID, "btn-acessar-sistema").click()
@@ -420,3 +430,13 @@ Login_Proc_RJ.send_keys(Tab)
 Login_Proc_RJ.send_keys(Enter)
 time.sleep(5)
 
+"""
+Expected conditions para prosseguir para o donload
+
+try:
+    WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="container"]/center[2]/form/input[2]')))
+    driver.find_element(By.XPATH, '//*[@id="container"]/center[2]/form/input[2]').click()
+except TimeoutException:
+    print("Falha no processo de acesso")
+
+"""

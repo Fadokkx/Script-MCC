@@ -28,6 +28,7 @@ Proc_HospDoServPubSP = "https://www2.econsig.com.br/hspm/v3/autenticarUsuario#no
 #CIP
 Proc_GovPefSP = "https://www.portaldoconsignado.org.br/home?37"
 Proc_MatoGrosso = "https://www.portaldoconsignado.com.br/home?9"
+Proc_SEFAZ = "https://www.portaldoconsignado.com.br/home?76"
 
 #CONSIGFACIL
 Proc_PIAUI = "https://consigfacil.sead.pi.gov.br/index.php"
@@ -51,9 +52,9 @@ Proc_Alagoas = "https://www.neoconsig.com.br/neoconsig/"
 
 # Pega variaveis de login Zetra de ambiente do sistema (Placheholders)
 try:
-    ZETRA_Username_Values = os.getenv("ZETRA_Username_Values")
-    Password_Values = os.getenv("Password_Values")
-    if not all ([ZETRA_Username_Values,Password_Values]):
+    ZETRA_Username_Values = os.getenv("Zetra_Username_Values")
+    ZETRA_Password_Values = os.getenv("Zetra_Password_Values")
+    if not all ([ZETRA_Username_Values,ZETRA_Password_Values]):
         raise ValueError("Coloque as variáveis do ambiente")   
 except Exception as e:
     print("Não foi possível achar os valores")
@@ -69,11 +70,12 @@ try:
         raise ValueError("Coloque valores nas variáveis do ambiente")
 except Exception as e:
     print(f"Erro {e}")
-
-# Pega variaveis de login CIP de ambiente do sistema (PlaceHolders)
+"""
+#Pega variaveis de login CIP de ambiente do sistema (PlaceHolders)
 try:
-    Cip_Username_Values = os.getenv("Cip_Username_Values")
-    if not all ([Cip_Username_Values,Password_Values]):
+    User_CIP = os.getenv("User_CIP")
+    Senha_CIP = os.getenv("Senha_CIP")
+    if not all ([User_CIP,Senha_CIP]):
         raise ValueError ("Coloque valores nas variáveis do ambiente")
 except Exception as e:
     print(f"Erro {e}")
@@ -94,16 +96,16 @@ try:
         raise ValueError ("Coloque os valores nas variaveis do ambiente")
 except Exception as e:
     print(f"Erro {e}")
-
+"""
 #Variaveis Comandos Selenium
 driver = webdriver.Edge()
+Cip_Crash = "https://www.portaldoconsignado.org.br/wicket/page?9"
 driver.maximize_window() #Recomendo desabilitar caso não use monitor secundário
 
 #Keys para chamada mais rápida
 Seta_Baixo = Keys.ARROW_DOWN
 Enter = Keys.RETURN
 Tab = Keys.TAB
-
 #Logins na ZETRA---------------------------------------------------------
 
 #Começa o login na Processadora de EMBU
@@ -113,33 +115,13 @@ UserZetra = driver.find_element(By.ID, "username")
 UserZetra.clear()
 UserZetra.send_keys(ZETRA_Username_Values)
 UserZetra.send_keys(Enter)
-PswZetra = driver.find_element(By.NAME, "senha")
-PswZetra.clear()
-PswZetra.send_keys("123")
+PswZetra = driver.find_element(By.XPATH, "/html/body/section/div/div[1]/form/div[3]/input[1]")
+PswZetra.send_keys(ZETRA_Password_Values)
 ZetraCaptcha_Resolver = input("Digite o Captcha: ")
 time.sleep(1)
 CaptchaZetra = driver.find_element(By.ID, "captcha")
 CaptchaZetra.send_keys(ZetraCaptcha_Resolver)
 CaptchaZetra.send_keys(Enter)
-time.sleep(1)
-#assert "No results found." not in driver.page_source
-
-#Começa o login na Processadora do Hospital do Servidor Público de São Paulo
-driver.get(Proc_HospDoServPubSP)
-assert "SISTEMA DIGITAL DE CONSIGNAÇÕES" in driver.title
-assert "SISTEMA DIGITAL DE CONSIGNAÇÕES" in driver.title
-UserZetra = driver.find_element(By.ID, "username")
-UserZetra.clear()
-UserZetra.send_keys(ZETRA_Username_Values)
-UserZetra.send_keys(Enter)
-PswZetra = driver.find_element(By.NAME, "senha")
-PswZetra.clear()
-PswZetra.send_keys("123")
-ZetraCaptcha_Resolver = input("Digite o Captcha: ")
-time.sleep(1)
-CaptchaZetra = driver.find_element(By.ID, "captcha")
-CaptchaZetra.send_keys(ZetraCaptcha_Resolver)
-CaptchaZetra.send_keys(Keys.RETURN)
 time.sleep(1)
 #assert "No results found." not in driver.page_source
 
@@ -153,7 +135,7 @@ UserZetra.send_keys(ZETRA_Username_Values)
 UserZetra.send_keys(Keys.RETURN)
 PswZetra = driver.find_element(By.NAME, "senha")
 PswZetra.clear()
-PswZetra.send_keys("123")
+PswZetra.send_keys(ZETRA_Password_Values)
 ZetraCaptcha_Resolver = input("Digite o Captcha: ")
 time.sleep(1)
 CaptchaZetra = driver.find_element(By.ID, "captcha")
@@ -183,6 +165,24 @@ CaptchaZetra.send_keys(Keys.RETURN)
 time.sleep(1)
 #assert "No results found." not in driver.page_source
 """
+#Começa o login na Processadora do Hospital do Servidor Público de São Paulo
+driver.get(Proc_HospDoServPubSP)
+assert "SISTEMA DIGITAL DE CONSIGNAÇÕES" in driver.title
+assert "SISTEMA DIGITAL DE CONSIGNAÇÕES" in driver.title
+UserZetra = driver.find_element(By.ID, "username")
+UserZetra.clear()
+UserZetra.send_keys(ZETRA_Username_Values)
+UserZetra.send_keys(Enter)
+PswZetra = driver.find_element(By.NAME, "senha")
+PswZetra.clear()
+PswZetra.send_keys("123")
+ZetraCaptcha_Resolver = input("Digite o Captcha: ")
+time.sleep(1)
+CaptchaZetra = driver.find_element(By.ID, "captcha")
+CaptchaZetra.send_keys(ZetraCaptcha_Resolver)
+CaptchaZetra.send_keys(Keys.RETURN)
+time.sleep(1)
+#assert "No results found." not in driver.page_source
 
 #Começa o login na Processadora da Prefeitura da Serra ES
 driver.get(Proc_Pref_Serra_ES)
@@ -258,11 +258,123 @@ time.sleep(1)
 
 #Logins na CIP---------------------------------------------------------
 
-#Começa o login na Processadora da Prefeitura e governo de São Paulo
-driver.get(Proc_GovPefSP)
-
 #Começa o login na Processadora do Mato Grosso
-driver.get(Proc_MatoGrosso)
+driver.get(Proc_GovPefSP)
+#Login no portal
+Selec_Aba = driver.find_element(By.XPATH, "/html/body/div[1]/div[1]/div[2]/span/span").click()
+Insira_User_CIP = driver.find_element(By.XPATH, "/html/body/div[1]/div[2]/form/div[3]/div/div/div/div[3]/input")
+Insira_User_CIP.send_keys(User_CIP)
+Insira_Senha_CIP = driver.find_element(By.XPATH, "/html/body/div[1]/div[2]/form/div[3]/div/div/div/div[4]/input")
+Insira_Senha_CIP.send_keys(Senha_CIP)
+Cip_Captcha_Resolver = input("Digite o Captcha: ")
+Cip_Captcha = driver.find_element(By.XPATH, "/html/body/div[1]/div[2]/form/div[3]/div/div/div/div[5]/div/input")
+Cip_Captcha.send_keys(Cip_Captcha_Resolver)
+Cip_Captcha.send_keys(Enter)
+time.sleep(2)
+
+#Seleciona Portal Do Mato Grosso
+Selec_Bot_PrefMS = driver.find_element(By.CLASS_NAME, "btExpandir").click()
+Selec_Entr_PrefMS = driver.find_element(By.XPATH,"/html/body/div/div/form/div[2]/div/div[4]/div[2]/fieldset/div/div[2]/fieldset/span/label").click()
+Env_Acess = driver.find_element(By.XPATH, "/html/body/div/div/form/div[2]/div/div[7]/input").click()
+time.sleep(4)
+#Seleciona o gerador de relatório no portal
+Selec_Tab_Rel = driver.find_element(By.XPATH,"/html/body/div/div/div[1]/div/div[2]/a/span").click()
+Selec_Tab_GerRel = driver.find_element(By.XPATH,"/html/body/div/div/div[1]/div/div[2]/div/div/a").click()
+#Seleciona a Opção de Visão do Relatório
+Selec_OP_Vis = driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[4]/div[1]/select").click
+Achar_OP_Vis = driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[4]/div[1]/select")
+Achar_OP_Vis.send_keys(Seta_Baixo)
+Achar_OP_Vis.send_keys(Enter)
+#Tempo pro site Carregar
+time.sleep(4)
+#Seleciona o Relatório disponível com a opção de visão
+Selec_Tab_Rel = driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[4]/div[2]/select").click()
+AcharOP_Rel = driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[4]/div[2]/select")
+AcharOP_Rel.send_keys(Seta_Baixo)
+AcharOP_Rel.send_keys(Enter)
+time.sleep(4)
+#Seleciona os orgãos disponíveis pra Orgãos selecionados
+Selec_OrgD_ORGS = driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[5]/div[2]/div[6]/div/div[2]/span/div[2]/div/button[3]").click()
+#Seleciona as espécies disponíveis pra Espécieis selecionadas
+Selec_ESPD_ESPS = driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[5]/div[2]/div[9]/div/div[2]/span/div[2]/div/button[3]").click()
+
+#Seleciona as caixas desejadas pro relatório
+
+#Selecionar Nome 
+Selec_Nome_MS = driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[1]/tbody/tr[7]/td[1]/input").click()
+#Selecionar Matricula
+Selec_MatFun_MS = driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[1]/tbody/tr[2]/td[2]/input").click()
+#Selecionar CPF
+Selec_CPF_MS = driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[1]/tbody/tr[3]/td[2]/input").click()
+#Selecionar Nome Reduzido CNPJ (MCC)
+Selec_Nome_CNPJ_MS = driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[2]/tbody/tr[3]/td[1]/input").click() 
+
+#Fim das checkbox
+
+#Click Gerar Relatório
+Selec_Bot_GerRel = driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[7]/input[2]").click()
+time.sleep(6)
+#Baixar Relatório NA MÃO !
+time.sleep(7)
+driver.get("https://www.portaldoconsignado.org.br/consignatario/autenticado?74")
+Selec_Troca_Perfil_CIP = driver.find_element(By.XPATH, "/html/body/div/div/div[1]/div/div[3]/a/span").click()
+Abre_Box_MS = driver.find_element(By.CLASS_NAME, "btExpandir").click()
+Abre_Box_PrefSP = driver.find_element(By.CLASS_NAME, "btExpandir").click()
+
+#Começa o login na Processadora da Prefeitura e governo de São Paulo
+driver.find_element(By.XPATH,"/html/body/div/div/form/div[2]/div/div[5]/div[2]/fieldset/div/div[2]/fieldset/span/label/input").click()
+driver.find_element(By.XPATH,"/html/body/div/div/form/div[2]/div/div[7]/input").click()
+time.sleep(2)
+#Seleciona o gerador de relatório no portal
+Selec_Tab_Rel = driver.find_element(By.XPATH,"/html/body/div/div/div[1]/div/div[2]/a").click()
+Selec_Tab_GerRel = driver.find_element(By.XPATH,"/html/body/div/div/div[1]/div/div[2]/div/div/a").click()
+time.sleep(1)
+#Seleciona a Opção de Visão do Relatório
+Selec_OP_Vis = driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[4]/div[1]/select").click
+Achar_OP_Vis = driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[4]/div[1]/select")
+Achar_OP_Vis.send_keys(Seta_Baixo)
+Achar_OP_Vis.send_keys(Enter)
+#Tempo pro site Carregar
+time.sleep(4)
+#Seleciona o Relatório disponível com a opção de visão
+Selec_Tab_Rel = driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[4]/div[2]/select").click()
+AcharOP_Rel = driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[4]/div[2]/select")
+AcharOP_Rel.send_keys(Seta_Baixo)
+AcharOP_Rel.send_keys(Enter)
+time.sleep(4)
+#Seleciona os orgãos disponíveis pra Orgãos selecionados
+Selec_OrgD_ORGS = driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[5]/div[2]/div[6]/div/div[2]/span/div[2]/div/button[3]").click()
+#Seleciona as espécies disponíveis pra Espécieis selecionadas
+Selec_ESPD_ESPS = driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[5]/div[2]/div[9]/div/div[2]/span/div[2]/div/button[3]").click()
+
+#Seleciona as caixas desejadas pro relatório
+
+#Selecionar Nome 
+Selec_Nome_SP = driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[1]/tbody/tr[7]/td[1]/input").click()
+#Selecionar Matricula
+Selec_MatFun_SP = driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[1]/tbody/tr[2]/td[2]/input").click()
+#Selecionar CPF
+Selec_CPF_SP = driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[1]/tbody/tr[3]/td[2]/input").click()
+#Selecionar Nome Reduzido CNPJ (MCC)
+Selec_Nome_CNPJ_SP = driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[2]/tbody/tr[3]/td[1]/input").click() 
+
+#Fim das checkbox
+
+#Click Gerar Relatório
+Selec_Bot_GerRel = driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[7]/input[2]").click()
+time.sleep(6)
+#Baixar Relatório NA MÃO !
+time.sleep(7)
+driver.get("https://www.portaldoconsignado.org.br/consignatario/autenticado?74")
+Selec_Troca_Perfil_CIP = driver.find_element(By.XPATH, "/html/body/div/div/div[1]/div/div[3]/a/span").click()
+Abre_Box_MS = driver.find_element(By.CLASS_NAME, "btExpandir").click()
+Abre_Box_PrefSP = driver.find_element(By.CLASS_NAME, "btExpandir").click()
+Abre_Box_SEFAZ = driver.find_element(By.CLASS_NAME, "btExpandir").click()
+#Começa o login na Processadora da SEFAZ
+Selec_Bot_SEFAZ = driver.find_element(By.XPATH,"/html/body/div/div/form/div[2]/div/div[6]/div[2]/fieldset/div/div[2]/fieldset/span/label/input").click()
+Click_Acess_SEFAZ = driver.find_element(By.XPATH,"/html/body/div/div/form/div[2]/div/div[7]/input").click()
+
+time.sleep(10)
 
 #Logins na CONSIGFACIL---------------------------------------------------------
 
@@ -391,17 +503,11 @@ time.sleep(1)
 #Começa o login na Processadora de Alagoas
 driver.get(Proc_Alagoas)
 Find_DropBar = driver.find_element(By.XPATH, "/html/body/header/nav/div/div[2]/ul/li/a/button").click()
-"""
-
 Click_DropBar = driver.find_element(By.XPATH, "/html/body/header/nav/div/div[2]/ul/li/ul/li[3]/a").click()
-Select_Acess_DropBar = driver.find_element(By.XPATH, "/html/body/header/nav/div/div[1]/ul/li[6]/ul/li[3]/a").click()
-Acess_DropBar = driver.find_element(By.XPATH, "/html/body/header/nav/div/div[4]/form/input[1]")
-Acess_DropBar.send_keys("Login_NeoConsig")
-time.sleep(3)
-
-"""
-
-"""
+#Select_Acess_DropBar = driver.find_element(By.XPATH, "/html/body/header/nav/div/div[1]/ul/li[6]/ul/li[3]/a").click()
+#Acess_DropBar = driver.find_element(By.XPATH, "/html/body/header/nav/div/div[4]/form/input[1]")
+#Acess_DropBar.send_keys("Login_NeoConsig")
+# time.sleep(3)
 
 #Começa o login na Processadora de Goias
 driver.get(Proc_GovGoias)
@@ -412,7 +518,6 @@ driver.get(Proc_Guarulhos)
 #Começa o login na Processadora de Sorocaba
 driver.get(Proc_Sorocaba)
 
-"""
 #Começa o login na Processadora do Rio De Janeiro
 driver.get(Proc_RJ)
 Consig_Log = driver.find_element(By.ID, "btn-acessar-sistema").click()
@@ -429,6 +534,7 @@ NeoConsig_Captcha.send_keys(NeoConsig_Captcha_Resolver)
 Login_Proc_RJ.send_keys(Tab)
 Login_Proc_RJ.send_keys(Enter)
 time.sleep(5)
+
 
 """
 Expected conditions para prosseguir para o donload

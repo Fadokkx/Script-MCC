@@ -18,11 +18,6 @@ Proc_IGEPREV = "https://portal.econsig.com.br/igeprev/v3/autenticarUsuario#no-ba
 Proc_PrefSBC ="https://www.econsig.com.br/sbc/v3/autenticarUsuario?t=20190520100728#no-back"
 Proc_Pref_Serra_ES = "https://www.econsig.com.br/serra"
 Proc_PrefUberlandia = "https://www.econsig.com.br/uberlandia"
-"""
-Achar erro na corretora do Paraná (Conexão não particular)
-Proc_Parana = "https://www.prconsig.seap.pr.gov.br/pr/v3/autenticarUsuario?t=20221012152301#no-back"
-
-"""
 Proc_PrefCuritiba = "https://www2.econsig.com.br/curitiba/v3/autenticarUsuario?t=20230904104333#no-back"
 Proc_HospDoServPubSP = "https://www2.econsig.com.br/hspm/v3/autenticarUsuario#no-back"
 
@@ -33,13 +28,17 @@ Proc_SEFAZ = "https://www.portaldoconsignado.com.br/home?76"
 
 #CONSIGFACIL
 Proc_PIAUI = "https://consigfacil.sead.pi.gov.br/index.php"
-Proc_PrefCampinaGrande ="https://www.faciltecnologia.com.br/consigfacil/campinagrande/index.php"
-Proc_IPSEM_CampinaGrande = "https://www.faciltecnologia.com.br/consigfacil/campinagrande/index.php"
 Proc_PrefJoaoPessoa = "https://www.faciltecnologia.com.br/consigfacil/joaopessoa/index.php"
 Proc_GovMaranhao = "https://www.faciltecnologia.com.br/consigfacil/maranhao/index.php"
 Proc_PrefPortoVelho = "https://www.faciltecnologia.com.br/consigfacil/portovelho/"
 Proc_GovPernambuco = "https://www.peconsig.pe.gov.br/index.php"
 Proc_PrefRecife = "https://www.faciltecnologia.com.br/consigfacil/recife/index.php"
+Proc_PrefCampinaGrande ="https://www.faciltecnologia.com.br/consigfacil/campinagrande/index.php"
+Proc_IPSEM_CampinaGrande = "https://www.faciltecnologia.com.br/consigfacil/campinagrande/index.php"
+
+#CONSIG
+Proc_Parana = "https://www.prconsig.seap.pr.gov.br/pr/v3/autenticarUsuario?t=20221012152301#no-back"
+
 
 #NEOCONSIG
 Proc_RJ = "https://rioconsig.com.br/rioconsig/login"
@@ -60,18 +59,14 @@ try:
 except Exception as e:
     print("Não foi possível achar os valores")
 
-"""
-Aguardando Valores para evitar erros
-
 # Pega variaveis de login NeoConsig de ambiente do sistema (PlaceHolders)
 try:
     NeoConsig_Username_Values = os.getenv("NeoConsig_Username_Values")
-    NeoConsig_Psw_Values = os.getenv("NeoConsig_Psw_Values")
-    if not all ([NeoConsig_Username_Values,NeoConsig_Psw_Values]):
+    if not all ([NeoConsig_Username_Values]):
         raise ValueError("Coloque valores nas variáveis do ambiente")
 except Exception as e:
     print(f"Erro {e}")
-"""
+
 #Pega variaveis de login CIP de ambiente do sistema (PlaceHolders)
 try:
     User_CIP = os.getenv("User_CIP")
@@ -90,10 +85,10 @@ try:
 except Exception as e:
     print(f"Erro {e}")
 
-#Pega variavel de login NEOCONSIG do ambiente do sistema (PlaceHolders)
+#Pega variavel de login NEOCONSIG do ambiente do sistema
 try:
-    User_NeoConsigRJ = os.gentenv("User_NeoConsigRJ")
-    if not all ([User_NeoConsigRJ]):
+    Acesso_NeoConsigRJ = os.getenv("User_NeoConsigRJ")
+    if not all ([Acesso_NeoConsigRJ]):
         raise ValueError ("Coloque os valores nas variaveis do ambiente")
 except Exception as e:
     print(f"Erro {e}")
@@ -122,6 +117,16 @@ print("Ontem foi dia: ", data_ontem_txt)
 print("O final de semana começou no dia: ", data_finalDeSemana_txt)
 print(data_ontem_txt)
 """
+
+#Testa Getenv para verificar se há erros nas variáveis
+print(ZETRA_Username_Values)
+print(ZETRA_Password_Values)
+print(User_CIP)
+print(Senha_CIP)
+print(ConsigFacil_Username_Values)
+print(ConsigFacil_Psw_Values)
+print(Acesso_NeoConsigRJ)
+print(NeoConsig_Username_Values)
 
 #Logins na ZETRA---------------------------------------------------------
 
@@ -194,6 +199,7 @@ driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[3]/div[2]/
 Click_OpRel = driver.find_element(By.XPATH, '//*[@id="userMenu"]/div').click()
 time.sleep(1)
 Click_DownloadRel = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[3]/div[2]/div/div[2]/table/tbody/tr[1]/td[4]/div/div/div/a[1]").click()
+driver.find_element(By.XPATH, '//*[@id="userMenu"]/div').click()
 
 #Começa o login na Processadora da IGPREV
 driver.get(Proc_IGEPREV)
@@ -542,7 +548,7 @@ ConsigFacilCaptcha.send_keys(ConsigFacil_CaptchaResolver)
 Psw_ConsigFacil.send_keys(Keys.RETURN)
 time.sleep(1) 
 
-#Logins na NEOCONSIG---------------------------------------------------------
+#Logins na NEOCONSIG (NECESSÁRIO ATIVAÇÃO FORTICLIENT)---------------------------------------------------------
 
 #Começa o login na Processadora de Alagoas
 driver.get(Proc_Alagoas)
@@ -562,6 +568,9 @@ driver.get(Proc_Guarulhos)
 #Começa o login na Processadora de Sorocaba
 driver.get(Proc_Sorocaba)
 
+
+#FECHA CONEXÃO FORTICLIENT
+
 #Começa o login na Processadora do Rio De Janeiro
 driver.get(Proc_RJ)
 Consig_Log = driver.find_element(By.ID, "btn-acessar-sistema").click()
@@ -571,7 +580,7 @@ Click_Acess.send_keys(Enter)
 Select_Acess = driver.find_element(By.ID, "tipo_acesso")
 Select_Acess.send_keys(Seta_Baixo)
 Login_Proc_RJ = driver.find_element (By.ID, "cod_acesso")
-Login_Proc_RJ.send_keys(User_NeoConsigRJ)
+Login_Proc_RJ.send_keys(Acesso_NeoConsigRJ)
 NeoConsig_Captcha_Resolver = input("Digite o Captcha: ")
 NeoConsig_Captcha = driver.find_element(By.ID, "captcha_code")
 NeoConsig_Captcha.send_keys(NeoConsig_Captcha_Resolver)
@@ -673,4 +682,5 @@ driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/di
 driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
 time.sleep(10)
 
+#Login Processadora Paraná
 time.sleep(15)

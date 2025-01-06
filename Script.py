@@ -94,7 +94,8 @@ except Exception as e:
     print(f"Erro {e}")
 
 #Variaveis Comandos Selenium
-driver = webdriver.Edge()
+options = webdriver.EdgeOptions()
+driver = webdriver.Edge(options=options)
 driver.maximize_window() #Recomendo desabilitar caso não use monitor secundário
 
 #Keys para chamada mais rápida
@@ -107,7 +108,6 @@ data_atual = date.today()
 data_atual_txt = data_atual.strftime('%d/%m/%Y')
 data_de_ontem = data_atual - timedelta(days=1) # Convert string back to date and subtract
 data_ontem_txt = data_de_ontem.strftime('%d/%m/%Y')
-
 data_finalDeSemana = data_atual - timedelta(days=3)
 data_finalDeSemana_txt = data_finalDeSemana.strftime('%d/%m/%y')
 
@@ -118,6 +118,7 @@ print("O final de semana começou no dia: ", data_finalDeSemana_txt)
 print(data_ontem_txt)
 """
 
+"""
 #Testa Getenv para verificar se há erros nas variáveis
 print(ZETRA_Username_Values)
 print(ZETRA_Password_Values)
@@ -127,7 +128,7 @@ print(ConsigFacil_Username_Values)
 print(ConsigFacil_Psw_Values)
 print(Acesso_NeoConsigRJ)
 print(NeoConsig_Username_Values)
-
+"""
 #Logins na ZETRA---------------------------------------------------------
 
 #Começa o login na Processadora de EMBU
@@ -148,7 +149,7 @@ driver.find_element(By.XPATH, "/html/body/section/div[2]/div/div/div[1]/div[2]/u
 driver.find_element(By.XPATH,"/html/body/section/div[2]/div/div/div[1]/div[2]/ul/div[2]/ul/li[1]/a").click()
 #Data de inclusão/Alteração
 time.sleep(2)
-"""
+
 
 Selec_data = driver.find_element(By.XPATH,"/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[2]/div/div[1]/div/div[2]/input")
 Selec_data.send_keys(data_ontem_txt)
@@ -193,7 +194,7 @@ time.sleep(1)
 Senha_Autorizador.send_keys(ZETRA_Password_Values)
 driver.find_element(By.XPATH, "/html/body/div[2]/div[3]/div/button[2]").click()
 time.sleep(7)
-"""
+
 time.sleep(2)
 driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[3]/div[2]/div/div[2]/table/thead/tr/th[3]")
 Click_OpRel = driver.find_element(By.XPATH, '//*[@id="userMenu"]/div').click()
@@ -214,26 +215,62 @@ CaptchaZetra = driver.find_element(By.ID, "captcha")
 CaptchaZetra.send_keys(ZetraCaptcha_Resolver)
 CaptchaZetra.send_keys(Enter)
 time.sleep(1)
-#assert "No results found." not in driver.page_source
+#Começa a geração de relatório
+driver.find_element(By.XPATH, "/html/body/section/div[2]/div/div/div[1]/div[2]/ul/li[3]/a").click()
+driver.find_element(By.XPATH,"/html/body/section/div[2]/div/div/div[1]/div[2]/ul/div[2]/ul/li[1]/a").click()
+#Data de inclusão/Alteração
+time.sleep(2)
 
-"""
-# Só liberar Corretora da Prefeitura do Paraná Após resolver o erro da Variável
+Selec_data = driver.find_element(By.XPATH,"/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[2]/div/div[1]/div/div[2]/input")
+Selec_data.send_keys(data_ontem_txt)
+Selec_data_final = driver.find_element(By.XPATH,"/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[2]/div/div[2]/div/div[2]/input")
+Selec_data_final.send_keys(data_atual_txt)
+Selec_Estabelecim = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[4]/select").click()
+Achar_Estabelecim = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[4]/select")
+Achar_Estabelecim.send_keys(Seta_Baixo)
+Achar_Estabelecim.send_keys(Enter)
 
-#Começa o login na corretora do Paraná
-driver.get(Proc_Parana)
-assert "SISTEMA DIGITAL DE CONSIGNAÇÕES" in driver.title
-UserZetra = driver.find_element(By.XPATH, "/html/body/section/div/div[1]/form/div[1]/input")
-UserZetra.send_keys(ZETRA_Username_Values)
-UserZetra.send_keys(Enter)
-PswZetra = driver.find_element(By.XPATH, "/html/body/section/div/div[1]/form/div[3]/input[1]")
-PswZetra.send_keys(ZETRA_Password_Values)
-ZetraCaptcha_Resolver = input("Digite o Captcha: ")
-CaptchaZetra = driver.find_element(By.ID, "captcha")
-CaptchaZetra.send_keys(ZetraCaptcha_Resolver)
-CaptchaZetra.send_keys(Enter)
+#CheckBox
+
+#Situação servidor
+Sit_Servidor_Zetra = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/fieldset[1]/div[2]/div/div[1]/span/input").click()
+
+#Situação do contrato
+#Sit_contrato_Zetra = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/fieldset[2]/div[2]/div/div[7]/span/input").click()
+
+#Fim das checkbox
+
+#Selecionar tipo de arquivo
+#driver.find_element(By.ID, "formato").click()
+Selec_tipo_Arquivo = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[11]/select")
+Selec_tipo_Arquivo.send_keys(Seta_Baixo)
+Selec_tipo_Arquivo.send_keys(Seta_Baixo)
+Selec_tipo_Arquivo.send_keys(Seta_Baixo)
+Selec_tipo_Arquivo.send_keys(Enter)
+
+driver.find_element(By.ID, "btnEnvia")
+time.sleep(3)
+driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[2]/a").click()
+#Selec_BotEnv = driver.find_element(By.ID, "btnEnvia")
+#Selec_BotEnv.send_keys(Enter)
+time.sleep(3)
+
+#Autorização Gerador
+driver.find_element(By.XPATH, "/html/body/div[2]/div[1]")
+driver.find_element(By.XPATH,"/html/body/div[2]/div[2]/form")
+Senha_Autorizador = driver.find_element(By.ID, "senha2aAutorizacao")
 time.sleep(1)
-#assert "No results found." not in driver.page_source
-"""
+Senha_Autorizador.send_keys(ZETRA_Password_Values)
+driver.find_element(By.XPATH, "/html/body/div[2]/div[3]/div/button[2]").click()
+time.sleep(7)
+
+time.sleep(2)
+driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[3]/div[2]/div/div[2]/table/thead/tr/th[3]")
+Click_OpRel = driver.find_element(By.XPATH, '//*[@id="userMenu"]/div').click()
+time.sleep(1)
+Click_DownloadRel = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[3]/div[2]/div/div[2]/table/tbody/tr[1]/td[4]/div/div/div/a[1]").click()
+driver.find_element(By.XPATH, '//*[@id="userMenu"]/div').click()
+
 #Começa o login na Processadora do Hospital do Servidor Público de São Paulo
 driver.get(Proc_HospDoServPubSP)
 assert "SISTEMA DIGITAL DE CONSIGNAÇÕES" in driver.title
@@ -247,7 +284,61 @@ CaptchaZetra = driver.find_element(By.ID, "captcha")
 CaptchaZetra.send_keys(ZetraCaptcha_Resolver)
 CaptchaZetra.send_keys(Enter)
 time.sleep(1)
-#assert "No results found." not in driver.page_source
+#Começa a geração de relatório
+driver.find_element(By.XPATH, "/html/body/section/div[2]/div/div/div[1]/div[2]/ul/li[3]/a").click()
+driver.find_element(By.XPATH,"/html/body/section/div[2]/div/div/div[1]/div[2]/ul/div[2]/ul/li[1]/a").click()
+#Data de inclusão/Alteração
+time.sleep(2)
+
+Selec_data = driver.find_element(By.XPATH,"/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[2]/div/div[1]/div/div[2]/input")
+Selec_data.send_keys(data_ontem_txt)
+Selec_data_final = driver.find_element(By.XPATH,"/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[2]/div/div[2]/div/div[2]/input")
+Selec_data_final.send_keys(data_atual_txt)
+Selec_Estabelecim = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[4]/select").click()
+Achar_Estabelecim = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[4]/select")
+Achar_Estabelecim.send_keys(Seta_Baixo)
+Achar_Estabelecim.send_keys(Enter)
+
+#CheckBox
+
+#Situação servidor
+Sit_Servidor_Zetra = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/fieldset[1]/div[2]/div/div[1]/span/input").click()
+
+#Situação do contrato
+#Sit_contrato_Zetra = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/fieldset[2]/div[2]/div/div[7]/span/input").click()
+
+#Fim das checkbox
+
+#Selecionar tipo de arquivo
+#driver.find_element(By.ID, "formato").click()
+Selec_tipo_Arquivo = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[11]/select")
+Selec_tipo_Arquivo.send_keys(Seta_Baixo)
+Selec_tipo_Arquivo.send_keys(Seta_Baixo)
+Selec_tipo_Arquivo.send_keys(Seta_Baixo)
+Selec_tipo_Arquivo.send_keys(Enter)
+
+driver.find_element(By.ID, "btnEnvia")
+time.sleep(3)
+driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[2]/a").click()
+#Selec_BotEnv = driver.find_element(By.ID, "btnEnvia")
+#Selec_BotEnv.send_keys(Enter)
+time.sleep(3)
+
+#Autorização Gerador
+driver.find_element(By.XPATH, "/html/body/div[2]/div[1]")
+driver.find_element(By.XPATH,"/html/body/div[2]/div[2]/form")
+Senha_Autorizador = driver.find_element(By.ID, "senha2aAutorizacao")
+time.sleep(1)
+Senha_Autorizador.send_keys(ZETRA_Password_Values)
+driver.find_element(By.XPATH, "/html/body/div[2]/div[3]/div/button[2]").click()
+time.sleep(7)
+
+time.sleep(2)
+driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[3]/div[2]/div/div[2]/table/thead/tr/th[3]")
+Click_OpRel = driver.find_element(By.XPATH, '//*[@id="userMenu"]/div').click()
+time.sleep(1)
+Click_DownloadRel = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[3]/div[2]/div/div[2]/table/tbody/tr[1]/td[4]/div/div/div/a[1]").click()
+driver.find_element(By.XPATH, '//*[@id="userMenu"]/div').click()
 
 #Começa o login na Processadora da Prefeitura da Serra ES
 driver.get(Proc_Pref_Serra_ES)
@@ -262,9 +353,63 @@ CaptchaZetra = driver.find_element(By.ID, "captcha")
 CaptchaZetra.send_keys(ZetraCaptcha_Resolver)
 CaptchaZetra.send_keys(Enter)
 time.sleep(1)
-#assert "No results found." not in driver.page_source
+#Começa a geração de relatório
+driver.find_element(By.XPATH, "/html/body/section/div[2]/div/div/div[1]/div[2]/ul/li[3]/a").click()
+driver.find_element(By.XPATH,"/html/body/section/div[2]/div/div/div[1]/div[2]/ul/div[2]/ul/li[1]/a").click()
+#Data de inclusão/Alteração
+time.sleep(2)
 
-"""
+Selec_data = driver.find_element(By.XPATH,"/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[2]/div/div[1]/div/div[2]/input")
+Selec_data.send_keys(data_ontem_txt)
+Selec_data_final = driver.find_element(By.XPATH,"/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[2]/div/div[2]/div/div[2]/input")
+Selec_data_final.send_keys(data_atual_txt)
+Selec_Estabelecim = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[4]/select").click()
+Achar_Estabelecim = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[4]/select")
+Achar_Estabelecim.send_keys(Seta_Baixo)
+Achar_Estabelecim.send_keys(Enter)
+
+#CheckBox
+
+#Situação servidor
+Sit_Servidor_Zetra = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/fieldset[1]/div[2]/div/div[1]/span/input").click()
+
+#Situação do contrato
+#Sit_contrato_Zetra = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/fieldset[2]/div[2]/div/div[7]/span/input").click()
+
+#Fim das checkbox
+
+#Selecionar tipo de arquivo
+#driver.find_element(By.ID, "formato").click()
+Selec_tipo_Arquivo = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[11]/select")
+Selec_tipo_Arquivo.send_keys(Seta_Baixo)
+Selec_tipo_Arquivo.send_keys(Seta_Baixo)
+Selec_tipo_Arquivo.send_keys(Seta_Baixo)
+Selec_tipo_Arquivo.send_keys(Enter)
+
+driver.find_element(By.ID, "btnEnvia")
+time.sleep(3)
+driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[2]/a").click()
+#Selec_BotEnv = driver.find_element(By.ID, "btnEnvia")
+#Selec_BotEnv.send_keys(Enter)
+time.sleep(3)
+
+#Autorização Gerador
+driver.find_element(By.XPATH, "/html/body/div[2]/div[1]")
+driver.find_element(By.XPATH,"/html/body/div[2]/div[2]/form")
+Senha_Autorizador = driver.find_element(By.ID, "senha2aAutorizacao")
+time.sleep(1)
+Senha_Autorizador.send_keys(ZETRA_Password_Values)
+driver.find_element(By.XPATH, "/html/body/div[2]/div[3]/div/button[2]").click()
+time.sleep(7)
+
+time.sleep(2)
+driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[3]/div[2]/div/div[2]/table/thead/tr/th[3]")
+Click_OpRel = driver.find_element(By.XPATH, '//*[@id="userMenu"]/div').click()
+time.sleep(1)
+Click_DownloadRel = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[3]/div[2]/div/div[2]/table/tbody/tr[1]/td[4]/div/div/div/a[1]").click()
+driver.find_element(By.XPATH, '//*[@id="userMenu"]/div').click()
+
+
 #Começa o login na Processadora da prefeitura de Curitiba
 driver.get(Proc_PrefCuritiba)
 UserZetra = driver.find_element(By.XPATH, "/html/body/section/div/div[1]/form/div[1]/input")
@@ -277,8 +422,62 @@ CaptchaZetra = driver.find_element(By.ID, "captcha")
 CaptchaZetra.send_keys(ZetraCaptcha_Resolver)
 CaptchaZetra.send_keys(Enter)
 time.sleep(1)
-#assert "No results found." not in driver.page_source
-"""
+#Começa a geração de relatório
+driver.find_element(By.XPATH, "/html/body/section/div[2]/div/div/div[1]/div[2]/ul/li[3]/a").click()
+driver.find_element(By.XPATH,"/html/body/section/div[2]/div/div/div[1]/div[2]/ul/div[2]/ul/li[1]/a").click()
+#Data de inclusão/Alteração
+time.sleep(2)
+
+Selec_data = driver.find_element(By.XPATH,"/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[2]/div/div[1]/div/div[2]/input")
+Selec_data.send_keys(data_ontem_txt)
+Selec_data_final = driver.find_element(By.XPATH,"/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[2]/div/div[2]/div/div[2]/input")
+Selec_data_final.send_keys(data_atual_txt)
+Selec_Estabelecim = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[4]/select").click()
+Achar_Estabelecim = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[4]/select")
+Achar_Estabelecim.send_keys(Seta_Baixo)
+Achar_Estabelecim.send_keys(Enter)
+
+#CheckBox
+
+#Situação servidor
+Sit_Servidor_Zetra = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/fieldset[1]/div[2]/div/div[1]/span/input").click()
+
+#Situação do contrato
+#Sit_contrato_Zetra = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/fieldset[2]/div[2]/div/div[7]/span/input").click()
+
+#Fim das checkbox
+
+#Selecionar tipo de arquivo
+#driver.find_element(By.ID, "formato").click()
+Selec_tipo_Arquivo = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[11]/select")
+Selec_tipo_Arquivo.send_keys(Seta_Baixo)
+Selec_tipo_Arquivo.send_keys(Seta_Baixo)
+Selec_tipo_Arquivo.send_keys(Seta_Baixo)
+Selec_tipo_Arquivo.send_keys(Enter)
+
+driver.find_element(By.ID, "btnEnvia")
+time.sleep(3)
+driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[2]/a").click()
+#Selec_BotEnv = driver.find_element(By.ID, "btnEnvia")
+#Selec_BotEnv.send_keys(Enter)
+time.sleep(3)
+
+#Autorização Gerador
+driver.find_element(By.XPATH, "/html/body/div[2]/div[1]")
+driver.find_element(By.XPATH,"/html/body/div[2]/div[2]/form")
+Senha_Autorizador = driver.find_element(By.ID, "senha2aAutorizacao")
+time.sleep(1)
+Senha_Autorizador.send_keys(ZETRA_Password_Values)
+driver.find_element(By.XPATH, "/html/body/div[2]/div[3]/div/button[2]").click()
+time.sleep(7)
+
+time.sleep(2)
+driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[3]/div[2]/div/div[2]/table/thead/tr/th[3]")
+Click_OpRel = driver.find_element(By.XPATH, '//*[@id="userMenu"]/div').click()
+time.sleep(1)
+Click_DownloadRel = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[3]/div[2]/div/div[2]/table/tbody/tr[1]/td[4]/div/div/div/a[1]").click()
+driver.find_element(By.XPATH, '//*[@id="userMenu"]/div').click()
+
 #Começa o login na Processadora de São Bernardo do Campo
 driver.get(Proc_PrefSBC)
 UserZetra = driver.find_element(By.XPATH, "/html/body/section/div/div[1]/form/div[1]/input")
@@ -291,7 +490,61 @@ CaptchaZetra = driver.find_element(By.ID, "captcha")
 CaptchaZetra.send_keys(ZetraCaptcha_Resolver)
 CaptchaZetra.send_keys(Enter)
 time.sleep(1)
-#assert "No results found." not in driver.page_source
+#Começa a geração de relatório
+driver.find_element(By.XPATH, "/html/body/section/div[2]/div/div/div[1]/div[2]/ul/li[3]/a").click()
+driver.find_element(By.XPATH,"/html/body/section/div[2]/div/div/div[1]/div[2]/ul/div[2]/ul/li[1]/a").click()
+#Data de inclusão/Alteração
+time.sleep(2)
+
+Selec_data = driver.find_element(By.XPATH,"/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[2]/div/div[1]/div/div[2]/input")
+Selec_data.send_keys(data_ontem_txt)
+Selec_data_final = driver.find_element(By.XPATH,"/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[2]/div/div[2]/div/div[2]/input")
+Selec_data_final.send_keys(data_atual_txt)
+Selec_Estabelecim = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[4]/select").click()
+Achar_Estabelecim = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[4]/select")
+Achar_Estabelecim.send_keys(Seta_Baixo)
+Achar_Estabelecim.send_keys(Enter)
+
+#CheckBox
+
+#Situação servidor
+Sit_Servidor_Zetra = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/fieldset[1]/div[2]/div/div[1]/span/input").click()
+
+#Situação do contrato
+#Sit_contrato_Zetra = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/fieldset[2]/div[2]/div/div[7]/span/input").click()
+
+#Fim das checkbox
+
+#Selecionar tipo de arquivo
+#driver.find_element(By.ID, "formato").click()
+Selec_tipo_Arquivo = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[11]/select")
+Selec_tipo_Arquivo.send_keys(Seta_Baixo)
+Selec_tipo_Arquivo.send_keys(Seta_Baixo)
+Selec_tipo_Arquivo.send_keys(Seta_Baixo)
+Selec_tipo_Arquivo.send_keys(Enter)
+
+driver.find_element(By.ID, "btnEnvia")
+time.sleep(3)
+driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[2]/a").click()
+#Selec_BotEnv = driver.find_element(By.ID, "btnEnvia")
+#Selec_BotEnv.send_keys(Enter)
+time.sleep(3)
+
+#Autorização Gerador
+driver.find_element(By.XPATH, "/html/body/div[2]/div[1]")
+driver.find_element(By.XPATH,"/html/body/div[2]/div[2]/form")
+Senha_Autorizador = driver.find_element(By.ID, "senha2aAutorizacao")
+time.sleep(1)
+Senha_Autorizador.send_keys(ZETRA_Password_Values)
+driver.find_element(By.XPATH, "/html/body/div[2]/div[3]/div/button[2]").click()
+time.sleep(7)
+
+time.sleep(2)
+driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[3]/div[2]/div/div[2]/table/thead/tr/th[3]")
+Click_OpRel = driver.find_element(By.XPATH, '//*[@id="userMenu"]/div').click()
+time.sleep(1)
+Click_DownloadRel = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[3]/div[2]/div/div[2]/table/tbody/tr[1]/td[4]/div/div/div/a[1]").click()
+driver.find_element(By.XPATH, '//*[@id="userMenu"]/div').click()
 
 #Começa o login na Processadora de Uberlândia
 UserZetra = driver.find_element(By.XPATH, "/html/body/section/div/div[1]/form/div[1]/input")
@@ -304,7 +557,61 @@ CaptchaZetra = driver.find_element(By.ID, "captcha")
 CaptchaZetra.send_keys(ZetraCaptcha_Resolver)
 CaptchaZetra.send_keys(Enter)
 time.sleep(1)
-#assert "No results found." not in driver.page_source
+#Começa a geração de relatório
+driver.find_element(By.XPATH, "/html/body/section/div[2]/div/div/div[1]/div[2]/ul/li[3]/a").click()
+driver.find_element(By.XPATH,"/html/body/section/div[2]/div/div/div[1]/div[2]/ul/div[2]/ul/li[1]/a").click()
+#Data de inclusão/Alteração
+time.sleep(2)
+
+Selec_data = driver.find_element(By.XPATH,"/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[2]/div/div[1]/div/div[2]/input")
+Selec_data.send_keys(data_ontem_txt)
+Selec_data_final = driver.find_element(By.XPATH,"/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[2]/div/div[2]/div/div[2]/input")
+Selec_data_final.send_keys(data_atual_txt)
+Selec_Estabelecim = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[4]/select").click()
+Achar_Estabelecim = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[4]/select")
+Achar_Estabelecim.send_keys(Seta_Baixo)
+Achar_Estabelecim.send_keys(Enter)
+
+#CheckBox
+
+#Situação servidor
+Sit_Servidor_Zetra = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/fieldset[1]/div[2]/div/div[1]/span/input").click()
+
+#Situação do contrato
+#Sit_contrato_Zetra = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/fieldset[2]/div[2]/div/div[7]/span/input").click()
+
+#Fim das checkbox
+
+#Selecionar tipo de arquivo
+#driver.find_element(By.ID, "formato").click()
+Selec_tipo_Arquivo = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[11]/select")
+Selec_tipo_Arquivo.send_keys(Seta_Baixo)
+Selec_tipo_Arquivo.send_keys(Seta_Baixo)
+Selec_tipo_Arquivo.send_keys(Seta_Baixo)
+Selec_tipo_Arquivo.send_keys(Enter)
+
+driver.find_element(By.ID, "btnEnvia")
+time.sleep(3)
+driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[2]/a").click()
+#Selec_BotEnv = driver.find_element(By.ID, "btnEnvia")
+#Selec_BotEnv.send_keys(Enter)
+time.sleep(3)
+
+#Autorização Gerador
+driver.find_element(By.XPATH, "/html/body/div[2]/div[1]")
+driver.find_element(By.XPATH,"/html/body/div[2]/div[2]/form")
+Senha_Autorizador = driver.find_element(By.ID, "senha2aAutorizacao")
+time.sleep(1)
+Senha_Autorizador.send_keys(ZETRA_Password_Values)
+driver.find_element(By.XPATH, "/html/body/div[2]/div[3]/div/button[2]").click()
+time.sleep(7)
+
+time.sleep(2)
+driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[3]/div[2]/div/div[2]/table/thead/tr/th[3]")
+Click_OpRel = driver.find_element(By.XPATH, '//*[@id="userMenu"]/div').click()
+time.sleep(1)
+Click_DownloadRel = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[3]/div[2]/div/div[2]/table/tbody/tr[1]/td[4]/div/div/div/a[1]").click()
+driver.find_element(By.XPATH, '//*[@id="userMenu"]/div').click()
 
 #Logins na CIP---------------------------------------------------------
 
@@ -428,20 +735,102 @@ time.sleep(10)
 
 #Logins na CONSIGFACIL---------------------------------------------------------
 
-#Começa o login na Processadora do Maranhão
-driver.get(Proc_GovMaranhao)
-#assert "ConsigFácil - Campina Grande" in driver.title
+#Começa o login na Processadora de João Pessoa
+driver.get(Proc_PrefJoaoPessoa)
 User_ConsigFacil = driver.find_element (By.ID, "usuario")
 User_ConsigFacil.clear()
-User_ConsigFacil.send_keys("ConsigFacil_Username_Values")
+User_ConsigFacil.send_keys(ConsigFacil_Username_Values)
 Psw_ConsigFacil = driver.find_element (By.ID, "senha")
 Psw_ConsigFacil.clear()
-Psw_ConsigFacil.send_keys("ConsigFacil_Psw_Value")
+Psw_ConsigFacil.send_keys(ConsigFacil_Psw_Values)
 ConsigFacil_CaptchaResolver = input("Digite o Captcha: ")
 ConsigFacilCaptcha = driver.find_element(By.ID, "captcha")
 ConsigFacilCaptcha.send_keys(ConsigFacil_CaptchaResolver)
 Psw_ConsigFacil.send_keys(Keys.RETURN)
 time.sleep(1) 
+
+#Fecha Janela de novidades
+driver.find_element(By.XPATH,'//*[@id="modalExibeBanners"]/div/div/div[1]/button').click()
+time.sleep(1)
+
+driver.execute_script ("document.body.style.zoom='50%'")
+#SELECIONA A ABA RELATÓRIO
+driver.find_element(By.XPATH,'//*[@id="sidebar"]/ul/div[1]/div[2]/div/div/div/li[6]/a').click()
+time.sleep(2)
+driver.find_element(By.XPATH, '/html/body/div[1]/ul/div[1]/div[2]/div/div/div/li[6]/ul/li[15]/a').click() #SELECIONA O TIPO DE RELATORIO
+time.sleep(1)
+driver.execute_script ("document.body.style.zoom='100%'")
+time.sleep(2)
+driver.find_element(By.XPATH, '//*[@id="folha"]').click()
+
+#EMLUR
+driver.find_element(By.XPATH, '//*[@id="folha"]/option[2]').click()
+time.sleep(2)
+#Box impede visualização em tela do Download
+driver.find_element(By.XPATH, "/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/form/div/div/div[2]/div[5]/div[2]/div/input").click()
+time.sleep(2)
+#Gera relatório
+driver.find_element(By.XPATH,'//*[@id="frmservico"]/div/div/div[2]/div[6]/div/button').click()
+time.sleep(10)
+
+#FUNJOPE
+driver.find_element(By.XPATH, '//*[@id="folha"]/option[3]').click()
+#Gera relatório
+driver.find_element(By.XPATH,'//*[@id="frmservico"]/div/div/div[2]/div[6]/div/button').click()
+time.sleep(7)
+
+#IPM Ativos e Inativos
+driver.find_element(By.XPATH, '//*[@id="folha"]/option[4]').click()
+#Gera relatório
+driver.find_element(By.XPATH,'//*[@id="frmservico"]/div/div/div[2]/div[6]/div/button').click()
+time.sleep(7)
+
+#IPM Pensionistas
+driver.find_element(By.XPATH, '//*[@id="folha"]/option[5]').click()
+#Gera relatório
+driver.find_element(By.XPATH,'//*[@id="frmservico"]/div/div/div[2]/div[6]/div/button').click()
+time.sleep(7)
+
+#PMJP
+driver.find_element(By.XPATH, '//*[@id="folha"]/option[6]').click()
+#Gera relatório
+driver.find_element(By.XPATH,'//*[@id="frmservico"]/div/div/div[2]/div[6]/div/button').click()
+time.sleep(7)
+
+#SEMOB
+driver.find_element(By.XPATH, '//*[@id="folha"]/option[7]').click()
+#Gera relatório
+driver.find_element(By.XPATH,'//*[@id="frmservico"]/div/div/div[2]/div[6]/div/button').click()
+time.sleep(7)
+
+#SMS
+driver.find_element(By.XPATH, '//*[@id="folha"]/option[8]').click()
+#Gera relatório
+driver.find_element(By.XPATH,'//*[@id="frmservico"]/div/div/div[2]/div[6]/div/button').click()
+time.sleep(7)
+
+
+time.sleep(15)
+
+"""
+#Começa o login na Processadora do Maranhão
+driver.get(Proc_GovMaranhao)
+User_ConsigFacil = driver.find_element (By.ID, "usuario")
+User_ConsigFacil.clear()
+User_ConsigFacil.send_keys(ConsigFacil_Username_Values)
+Psw_ConsigFacil = driver.find_element (By.ID, "senha")
+Psw_ConsigFacil.clear()
+Psw_ConsigFacil.send_keys(ConsigFacil_Psw_Values)
+ConsigFacil_CaptchaResolver = input("Digite o Captcha: ")
+ConsigFacilCaptcha = driver.find_element(By.ID, "captcha")
+ConsigFacilCaptcha.send_keys(ConsigFacil_CaptchaResolver)
+Psw_ConsigFacil.send_keys(Keys.RETURN)
+time.sleep(1) 
+
+#Fecha Janela de novidades
+driver.find_element(By.XPATH,'//*[@id="modalExibeBanners"]/div/div/div[1]/button').click()
+time.sleep(1)
+
 
 #Começa o login na Processadora de Pernambuco
 driver.get(Proc_GovPernambuco)
@@ -457,39 +846,56 @@ ConsigFacilCaptcha = driver.find_element(By.ID, "captcha")
 ConsigFacilCaptcha.send_keys(ConsigFacil_CaptchaResolver)
 Psw_ConsigFacil.send_keys(Keys.RETURN)
 time.sleep(1) 
-
+"""
 #Começa o Login no Processadora do Instituto de previdência de Campina Grande
 driver.get(Proc_IPSEM_CampinaGrande)
 #assert "ConsigFácil - Campina Grande" in driver.title
 User_ConsigFacil = driver.find_element (By.ID, "usuario")
 User_ConsigFacil.clear()
-User_ConsigFacil.send_keys("ConsigFacil_Username_Values")
+User_ConsigFacil.send_keys(ConsigFacil_Username_Values)
 Psw_ConsigFacil = driver.find_element (By.ID, "senha")
 Psw_ConsigFacil.clear()
-Psw_ConsigFacil.send_keys("ConsigFacil_Psw_Value")
+Psw_ConsigFacil.send_keys(ConsigFacil_Psw_Values)
 ConsigFacil_CaptchaResolver = input("Digite o Captcha: ")
 ConsigFacilCaptcha = driver.find_element(By.ID, "captcha")
 ConsigFacilCaptcha.send_keys(ConsigFacil_CaptchaResolver)
 Psw_ConsigFacil.send_keys(Keys.RETURN)
 time.sleep(1) 
+#Fecha Janela de novidades
+driver.find_element(By.XPATH,'//*[@id="modalExibeBanners"]/div/div/div[1]/button').click()
+time.sleep(1)
+
+driver.execute_script ("document.body.style.zoom='50%'")
+#SELECIONA A ABA RELATÓRIO
+driver.find_element(By.XPATH,'//*[@id="sidebar"]/ul/div[1]/div[2]/div/div/div/li[6]/a').click()
+time.sleep(2)
+driver.find_element(By.XPATH, '/html/body/div[1]/ul/div[1]/div[2]/div/div/div/li[6]/ul/li[13]/a').click() #SELECIONA O TIPO DE RELATORIO
+time.sleep(1)
+driver.execute_script ("document.body.style.zoom='100%'")
+time.sleep(2)
+driver.find_element(By.XPATH, '//*[@id="folha"]').click()
+
+#IPSEM - Instituto de Previdência 
+driver.find_element(By.XPATH, '//*[@id="folha"]/option[2]').click()
+time.sleep(2)
+#Box impede visualização em tela do Download
+driver.find_element(By.XPATH, "/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/form/div/div/div[2]/div[5]/div[2]/div/input").click()
+time.sleep(2)
+#Gera relatório
+driver.find_element(By.XPATH,'//*[@id="frmservico"]/div/div/div[2]/div[6]/div/button').click()
+time.sleep(10)
+
+#Prefeitura Municipal de Campina Grande
+driver.find_element(By.XPATH, '//*[@id="folha"]/option[3]').click()
+#Gera relatório
+driver.find_element(By.XPATH,'//*[@id="frmservico"]/div/div/div[2]/div[6]/div/button').click()
+time.sleep(7)
+
+
+time.sleep(15)
 
 #Começa o login na Processadora do Piauí
 driver.get(Proc_PIAUI)
-#assert "ConsigFácil - Campina Grande" in driver.title
-User_ConsigFacil = driver.find_element (By.ID, "usuario")
-User_ConsigFacil.clear()
-User_ConsigFacil.send_keys("ConsigFacil_Username_Values")
-Psw_ConsigFacil = driver.find_element (By.ID, "senha")
-Psw_ConsigFacil.clear()
-Psw_ConsigFacil.send_keys("ConsigFacil_Psw_Value")
-ConsigFacil_CaptchaResolver = input("Digite o Captcha: ")
-ConsigFacilCaptcha = driver.find_element(By.ID, "captcha")
-ConsigFacilCaptcha.send_keys(ConsigFacil_CaptchaResolver)
-Psw_ConsigFacil.send_keys(Keys.RETURN)
-time.sleep(1) 
-
-#Começa o login na Processadora de João Pessoa
-driver.get(Proc_PrefJoaoPessoa)
 #assert "ConsigFácil - Campina Grande" in driver.title
 User_ConsigFacil = driver.find_element (By.ID, "usuario")
 User_ConsigFacil.clear()

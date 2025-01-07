@@ -1,14 +1,18 @@
 import os
 import time
+import locale
 from selenium import webdriver
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.edge.service import Service as EdgeService
 from webdriver_manager.microsoft import EdgeChromiumDriverManager
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
+
+#Define Locale
+locale.setlocale(locale.LC_TIME, "pt_BR.UTF-8")
 
 #Define a variáveis dos sites das Processadoras
 
@@ -28,7 +32,7 @@ Proc_SEFAZ = "https://www.portaldoconsignado.com.br/home?76"
 
 #CONSIGFACIL
 Proc_PIAUI = "https://consigfacil.sead.pi.gov.br/index.php" #!!
-Proc_PrefJoaoPessoa = "https://www.faciltecnologia.com.br/consigfacil/joaopessoa/index.php"
+Proc_PrefJoaoPessoa = "https://www.faciltecnologia.com.br/consigfacil/joaopessoa/index.php" 
 Proc_GovMaranhao = "https://www.faciltecnologia.com.br/consigfacil/maranhao/index.php"
 Proc_PrefPortoVelho = "https://www.faciltecnologia.com.br/consigfacil/portovelho/"
 Proc_GovPernambuco = "https://www.peconsig.pe.gov.br/index.php"
@@ -105,30 +109,42 @@ Tab = Keys.TAB
 
 #Variaveis Data
 data_atual = date.today()
+data_inicio_mes = datetime(data_atual.year,data_atual.month,1 )
+data_inicio_mes_txt = data_inicio_mes.strftime('%d/%m/%Y')
+mes_anterior = (data_atual.replace(day=1) - timedelta(days=1)).strftime("%B")
+Ano_Anterior = data_atual.year - 1 
+Ano_Atual = data_atual.year
 data_atual_txt = data_atual.strftime('%d/%m/%Y')
 data_de_ontem = data_atual - timedelta(days=1) # Convert string back to date and subtract
 data_ontem_txt = data_de_ontem.strftime('%d/%m/%Y')
 data_finalDeSemana = data_atual - timedelta(days=3)
 data_finalDeSemana_txt = data_finalDeSemana.strftime('%d/%m/%y')
+InfoData = datetime.now().strftime('%B')
 
-RodarTesteVar = input ("Pressione 's' caso queira rodar o teste da funcionabilidade das variaveis. \nCaso não queira, pressione qualquer outra tecla: \n")
-if RodarTesteVar == 's':
-    #Teste Funcionabilidade Variáveis data
-    print("Ontem foi dia: ", data_ontem_txt)
-    print("O final de semana começou no dia: ", data_finalDeSemana_txt)
-    print(data_ontem_txt)
-    #Testa Getenv para verificar se há erros nas variáveis
-    print(ZETRA_Username_Values)
-    print(ZETRA_Password_Values)
-    print(User_CIP)
-    print(Senha_CIP)
-    print(ConsigFacil_Username_Values)
-    print(ConsigFacil_Psw_Values)
-    print(Acesso_NeoConsigRJ)
-    print(NeoConsig_Username_Values)
-    print('\n')
-else:
-    print("")
+"""
+ATIVAR QUANDO TIVER ERROS RECORRENTES !
+
+#Teste Funcionabilidade Variáveis data
+print("Ontem foi dia: ", data_ontem_txt)
+print("O final de semana começou no dia: ", data_finalDeSemana_txt)
+print(data_ontem_txt)
+print(data_inicio_mes_txt)
+print(mes_anterior)
+print(Ano_Anterior)
+print(Ano_Atual)
+print(InfoData)
+print("\n")
+#Testa Getenv para verificar se há erros nas variáveis
+print(ZETRA_Username_Values)
+print(ZETRA_Password_Values)
+print(User_CIP)
+print(Senha_CIP)
+print(ConsigFacil_Username_Values)
+print(ConsigFacil_Psw_Values)
+print(Acesso_NeoConsigRJ)
+print(NeoConsig_Username_Values)
+print('\n')
+"""
 
 #Logins na ZETRA---------------------------------------------------------
 def Relatorios_Zetra():
@@ -225,7 +241,6 @@ def Relatorios_Zetra():
     driver.find_element(By.XPATH,'//*[@id="menuRelatorio"]/ul/li[2]/a').click() #ERRO
     #Data de inclusão/Alteração
     time.sleep(2)
-
     Selec_data = driver.find_element(By.XPATH,"/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[2]/div/div[1]/div/div[2]/input")
     Selec_data.send_keys(data_ontem_txt)
     Selec_data_final = driver.find_element(By.XPATH,"/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[2]/div/div[2]/div/div[2]/input")
@@ -645,7 +660,7 @@ def Relatorios_CIP():
     #Começa o login na Processadora do Mato Grosso
     driver.get(Proc_GovPefSP)
     #Login no portal
-    Selec_Aba = driver.find_element(By.XPATH, "/html/body/div[1]/div[1]/div[2]/span/span").click()
+    driver.find_element(By.XPATH, "/html/body/div[1]/div[1]/div[2]/span/span").click()
     Insira_User_CIP = driver.find_element(By.XPATH, "/html/body/div[1]/div[2]/form/div[3]/div/div/div/div[3]/input")
     Insira_User_CIP.send_keys(User_CIP)
     Insira_Senha_CIP = driver.find_element(By.XPATH, "/html/body/div[1]/div[2]/form/div[3]/div/div/div/div[4]/input")
@@ -657,13 +672,13 @@ def Relatorios_CIP():
     time.sleep(2)
 
     #Seleciona Portal Do Mato Grosso
-    Selec_Bot_PrefMS = driver.find_element(By.CLASS_NAME, "btExpandir").click()
-    Selec_Entr_PrefMS = driver.find_element(By.XPATH,"/html/body/div/div/form/div[2]/div/div[4]/div[2]/fieldset/div/div[2]/fieldset/span/label").click()
-    Env_Acess = driver.find_element(By.XPATH, "/html/body/div/div/form/div[2]/div/div[7]/input").click()
+    driver.find_element(By.CLASS_NAME, "btExpandir").click()
+    driver.find_element(By.XPATH,"/html/body/div/div/form/div[2]/div/div[4]/div[2]/fieldset/div/div[2]/fieldset/span/label").click()
+    driver.find_element(By.XPATH, "/html/body/div/div/form/div[2]/div/div[7]/input").click()
     time.sleep(4)
     #Seleciona o gerador de relatório no portal
-    Selec_Tab_Rel = driver.find_element(By.XPATH,"/html/body/div/div/div[1]/div/div[2]/a/span").click()
-    Selec_Tab_GerRel = driver.find_element(By.XPATH,"/html/body/div/div/div[1]/div/div[2]/div/div/a").click()
+    driver.find_element(By.XPATH,"/html/body/div/div/div[1]/div/div[2]/a/span").click()
+    driver.find_element(By.XPATH,"/html/body/div/div/div[1]/div/div[2]/div/div/a").click()
     #Seleciona a Opção de Visão do Relatório
     Selec_OP_Vis = driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[4]/div[1]/select").click
     Achar_OP_Vis = driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[4]/div[1]/select")
@@ -672,39 +687,53 @@ def Relatorios_CIP():
     #Tempo pro site Carregar
     time.sleep(4)
     #Seleciona o Relatório disponível com a opção de visão
-    Selec_Tab_Rel = driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[4]/div[2]/select").click()
+    driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[4]/div[2]/select").click()
     AcharOP_Rel = driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[4]/div[2]/select")
     AcharOP_Rel.send_keys(Seta_Baixo)
     AcharOP_Rel.send_keys(Enter)
     time.sleep(4)
     #Seleciona os orgãos disponíveis pra Orgãos selecionados
-    Selec_OrgD_ORGS = driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[5]/div[2]/div[6]/div/div[2]/span/div[2]/div/button[3]").click()
+    driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[5]/div[2]/div[6]/div/div[2]/span/div[2]/div/button[3]").click()
     #Seleciona as espécies disponíveis pra Espécieis selecionadas
-    Selec_ESPD_ESPS = driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[5]/div[2]/div[9]/div/div[2]/span/div[2]/div/button[3]").click()
+    driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[5]/div[2]/div[9]/div/div[2]/span/div[2]/div/button[3]").click()
 
     #Seleciona as caixas desejadas pro relatório
-
+    
+    #Selcionar Nome reduzido do Órgão
+    driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[1]/tbody/tr[6]/td[1]/input").click()
     #Selecionar Nome 
-    Selec_Nome_MS = driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[1]/tbody/tr[7]/td[1]/input").click()
+    driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[1]/tbody/tr[7]/td[1]/input").click()
     #Selecionar Matricula
-    Selec_MatFun_MS = driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[1]/tbody/tr[2]/td[2]/input").click()
+    driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[1]/tbody/tr[2]/td[2]/input").click()
     #Selecionar CPF
-    Selec_CPF_MS = driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[1]/tbody/tr[3]/td[2]/input").click()
-    #Selecionar Nome Reduzido CNPJ (MCC)
-    Selec_Nome_CNPJ_MS = driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[2]/tbody/tr[3]/td[1]/input").click() 
-
+    driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[1]/tbody/tr[3]/td[2]/input").click()
+    #Selecionar Número do contrato
+    driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[7]/td[1]/input").click()
+    #Selecionar situação da averbação
+    driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[9]/td[1]/input").click()
+    #Selecionar Valor liberado
+    driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[3]/td[2]/input").click()
+    #Selecionar Número da última parcela processada
+    driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[7]/td[2]/input").click()
+    #Selecionar Data de início de contrato
+    driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[11]/td[2]/input").click()
+    
     #Fim das checkbox
 
     #Click Gerar Relatório
-    Selec_Bot_GerRel = driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[7]/input[2]").click()
+    driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[7]/input[2]").click()
     time.sleep(6)
     #Baixar Relatório NA MÃO !
     time.sleep(7)
+    #Volta pra home
     driver.get("https://www.portaldoconsignado.org.br/consignatario/autenticado?74")
-    Selec_Troca_Perfil_CIP = driver.find_element(By.XPATH, "/html/body/div/div/div[1]/div/div[3]/a/span").click()
-    Abre_Box_MS = driver.find_element(By.CLASS_NAME, "btExpandir").click()
-    Abre_Box_PrefSP = driver.find_element(By.CLASS_NAME, "btExpandir").click()
-
+    
+    # Seleciona Troca de Perfil da CIP 
+    driver.find_element(By.XPATH, "/html/body/div/div/div[1]/div/div[3]/a/span").click()
+    # Abre Box MS 
+    driver.find_element(By.CLASS_NAME, "btExpandir").click()
+    # Abre Box PrefSP  
+    driver.find_element(By.CLASS_NAME, "btExpandir").click()
     #Começa o login na Processadora da Prefeitura e governo de São Paulo
     driver.find_element(By.XPATH,"/html/body/div/div/form/div[2]/div/div[5]/div[2]/fieldset/div/div[2]/fieldset/span/label/input").click()
     driver.find_element(By.XPATH,"/html/body/div/div/form/div[2]/div/div[7]/input").click()
@@ -731,34 +760,93 @@ def Relatorios_CIP():
     #Seleciona as espécies disponíveis pra Espécieis selecionadas
     Selec_ESPD_ESPS = driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[5]/div[2]/div[9]/div/div[2]/span/div[2]/div/button[3]").click()
 
-    #Seleciona as caixas desejadas pro relatório
-
+    #Selcionar Nome reduzido do Órgão
+    driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[1]/tbody/tr[6]/td[1]/input").click()
     #Selecionar Nome 
-    Selec_Nome_SP = driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[1]/tbody/tr[7]/td[1]/input").click()
+    driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[1]/tbody/tr[7]/td[1]/input").click()
     #Selecionar Matricula
-    Selec_MatFun_SP = driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[1]/tbody/tr[2]/td[2]/input").click()
+    driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[1]/tbody/tr[2]/td[2]/input").click()
     #Selecionar CPF
-    Selec_CPF_SP = driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[1]/tbody/tr[3]/td[2]/input").click()
-    #Selecionar Nome Reduzido CNPJ (MCC)
-    Selec_Nome_CNPJ_SP = driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[2]/tbody/tr[3]/td[1]/input").click() 
-
+    driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[1]/tbody/tr[3]/td[2]/input").click()
+    #Selecionar Número do contrato
+    driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[7]/td[1]/input").click()
+    #Selecionar situação da averbação
+    driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[9]/td[1]/input").click()
+    #Selecionar Valor liberado
+    driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[3]/td[2]/input").click()
+    #Selecionar Número da última parcela processada
+    driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[7]/td[2]/input").click()
+    #Selecionar Data de início de contrato
+    driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[11]/td[2]/input").click()
+    
     #Fim das checkbox
 
     #Click Gerar Relatório
-    Selec_Bot_GerRel = driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[7]/input[2]").click()
+    driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[7]/input[2]").click()
     time.sleep(6)
     #Baixar Relatório NA MÃO !
     time.sleep(7)
+    
     driver.get("https://www.portaldoconsignado.org.br/consignatario/autenticado?74")
     Selec_Troca_Perfil_CIP = driver.find_element(By.XPATH, "/html/body/div/div/div[1]/div/div[3]/a/span").click()
-    Abre_Box_MS = driver.find_element(By.CLASS_NAME, "btExpandir").click()
-    Abre_Box_PrefSP = driver.find_element(By.CLASS_NAME, "btExpandir").click()
-    Abre_Box_SEFAZ = driver.find_element(By.CLASS_NAME, "btExpandir").click()
+    # Abre Box MS 
+    driver.find_element(By.CLASS_NAME, "btExpandir").click()
+    # Abre Box PrefSP 
+    driver.find_element(By.CLASS_NAME, "btExpandir").click()
+    # Abre Box SEFAZ 
+    driver.find_element(By.CLASS_NAME, "btExpandir").click()
     #Começa o login na Processadora da SEFAZ
-    Selec_Bot_SEFAZ = driver.find_element(By.XPATH,"/html/body/div/div/form/div[2]/div/div[6]/div[2]/fieldset/div/div[2]/fieldset/span/label/input").click()
-    Click_Acess_SEFAZ = driver.find_element(By.XPATH,"/html/body/div/div/form/div[2]/div/div[7]/input").click()
+    driver.find_element(By.XPATH,"/html/body/div/div/form/div[2]/div/div[6]/div[2]/fieldset/div/div[2]/fieldset/span/label/input").click()
+    driver.find_element(By.XPATH,"/html/body/div/div/form/div[2]/div/div[7]/input").click()
+    time.sleep(3)
+    #Seleciona o gerador de relatório no portal
+    driver.find_element(By.XPATH,"/html/body/div/div/div[1]/div/div[2]/a").click()
+    driver.find_element(By.XPATH,"/html/body/div/div/div[1]/div/div[2]/div/div/a").click()
+    time.sleep(1)
+    #Seleciona a Opção de Visão do Relatório
+    driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[4]/div[1]/select").click
+    Achar_OP_Vis = driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[4]/div[1]/select")
+    Achar_OP_Vis.send_keys(Seta_Baixo)
+    Achar_OP_Vis.send_keys(Enter)
+    #Tempo pro site Carregar
+    time.sleep(4)
+    #Seleciona o Relatório disponível com a opção de visão
+    driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[4]/div[2]/select").click()
+    AcharOP_Rel = driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[4]/div[2]/select")
+    AcharOP_Rel.send_keys(Seta_Baixo)
+    AcharOP_Rel.send_keys(Enter)
+    time.sleep(4)
+    #Seleciona os orgãos disponíveis pra Orgãos selecionados
+    driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[5]/div[2]/div[6]/div/div[2]/span/div[2]/div/button[3]").click()
+    #Seleciona as espécies disponíveis pra Espécieis selecionadas
+    driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[5]/div[2]/div[9]/div/div[2]/span/div[2]/div/button[3]").click()
+    
+    #Selcionar Nome reduzido do Órgão
+    driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[1]/tbody/tr[6]/td[1]/input").click()
+    #Selecionar Nome 
+    driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[1]/tbody/tr[7]/td[1]/input").click()
+    #Selecionar Matricula
+    driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[1]/tbody/tr[2]/td[2]/input").click()
+    #Selecionar CPF
+    driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[1]/tbody/tr[3]/td[2]/input").click()
+    #Selecionar Número do contrato
+    driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[7]/td[1]/input").click()
+    #Selecionar situação da averbação
+    driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[9]/td[1]/input").click()
+    #Selecionar Valor liberado
+    driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[3]/td[2]/input").click()
+    #Selecionar Número da última parcela processada
+    driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[7]/td[2]/input").click()
+    #Selecionar Data de início de contrato
+    driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[11]/td[2]/input").click()
+    
+    #Fim das checkbox
+    #Click Gerar Relatório
+    driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[7]/input[2]").click()
+    time.sleep(6)
+    #Baixar Relatório NA MÃO !
+    time.sleep(7)
 
-    time.sleep(10)
 
 #Logins na CONSIGFACIL---------------------------------------------------------
 
@@ -1046,16 +1134,15 @@ def Relatorios_ProcRJ():
         driver.find_element(By.XPATH,"/html/body/div[4]/div/div/div[1]/p/a").click()
         time.sleep(10)#TEMPO PARA COLOCAR A SENHA NO TECLADO DIGITAL
         
-        #Abe a aba de relatório
+        #Abre a aba de relatório
         driver.find_element(By.XPATH, "/html/body/div[5]/div[1]/div/ul/li[5]/a/span[1]").click()
         driver.find_element(By.XPATH, "/html/body/div[5]/div[1]/div/ul/li[5]/ul/li/a").click()
         time.sleep(2)
 
-        #Seleciona o Produto para Relatório
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[1]/div/div/a/span[1]").click()
-        Digita_Produto_Desejado = input("Digite o produto que você deseja ver relatórios: ")        #Opções: Empréstimo, Cartão de crédito, 
-        Selec_Produto_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen1_search"]')     # Beneficio Saque, Beneficio compras
-        Selec_Produto_Desejado.send_keys(Digita_Produto_Desejado)
+        #Seleciona o Produto BENEFICIO SAQUE para Relatório
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[1]/div/div/a/span[1]").click() 
+        Selec_Produto_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen1_search"]')
+        Selec_Produto_Desejado.send_keys("BENEFICIO SAQUE")
         Selec_Produto_Desejado.send_keys(Enter)
 
         #Seleciona órgão 
@@ -1064,26 +1151,303 @@ def Relatorios_ProcRJ():
         driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[2]").click()
 
         #Selecionando Mês 
-        Digita_Mes_Desejado = input("Digite o mês que você gostaria de gerar o relatório referente: ")
         driver.find_element(By.XPATH,"/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[1]/div/div/a/span[1]").click()
         Selec_Mes_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen3_search"]')
-        Selec_Mes_Desejado.send_keys(Digita_Mes_Desejado)
+        Selec_Mes_Desejado.send_keys(mes_anterior)
         Selec_Mes_Desejado.send_keys(Enter)
 
         driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[1]/div/select/option[12]").click
 
         #Seleciona ANO
-        Digita_Ano_Desejado = input("Digite o ano que você gostaria de gerar o relatório referente: ")
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[2]/div/div/a/span[1]").click()
-        Selec_Ano_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen5_search"]')
-        Selec_Ano_Desejado.send_keys(Digita_Ano_Desejado)
-        Selec_Ano_Desejado.send_keys(Enter)
+        if InfoData == 'janeiro':
+            driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[2]/div/div/a/span[1]").click()
+            Selec_Ano_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen5_search"]')
+            Selec_Ano_Desejado.send_keys(Ano_Anterior)
+            Selec_Ano_Desejado.send_keys(Enter)
+        else:
+            driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[2]/div/div/a/span[1]").click()
+            Selec_Ano_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen5_search"]')
+            Selec_Ano_Desejado.send_keys(Ano_Atual)
+            Selec_Ano_Desejado.send_keys(Enter)
 
         #Seleciona Arquivo CSV Export
         driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
         time.sleep(10)
 
         #Seleciona órgão 
+        #PENSIONISTAS DO MUNICIPIO DO RIO DE JANEIRO RJ
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[3]").click()
+
+        #Seleciona Arquivo CSV Export
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
+        time.sleep(10)
+
+        #Seleciona órgão 
+        #EMPRESA MUNICIPAL DE MULTIMEIOS LTDA
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[4]").click()
+
+        #Seleciona Arquivo CSV Export
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
+        time.sleep(10)
+
+        #Seleciona órgão 
+        #GUARDA MUNICIPAL DO RIO DE JANEIRO
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[5]").click()
+
+        #Seleciona Arquivo CSV Export
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
+        time.sleep(10)
+
+        #Seleciona órgão 
+        #EMPRESA PUBLICA DE SAUDE DO RIO DE JANEIRO
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[6]").click()
+
+        #Seleciona Arquivo CSV Export
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
+        time.sleep(10)
+
+        #Seleciona órgão 
+        #INSTITUTO DE PREVIDENCIA E ASSISTENCIA DO M.R.J
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[7]").click()
+
+        #Seleciona Arquivo CSV Export
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
+        time.sleep(10)
+
+        #Seleciona órgão 
+        #Prefeitura RJ
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[8]").click()
+
+        #Seleciona Arquivo CSV Export
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
+        time.sleep(10)
+
+        #Seleciona órgão 
+        #FUNDO MESPECIAL DE PREVIDENCIA DO MUNICIPIO DO RJ
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[9]").click()
+
+        #Seleciona Arquivo CSV Export
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
+        time.sleep(10)
+
+        #Seleciona o Produto EMPRÉSTIMO para Relatório
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[1]/div/div/a/span[1]").click() 
+        Selec_Produto_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen1_search"]')
+        Selec_Produto_Desejado.send_keys("EMPRÉSTIMO")
+        Selec_Produto_Desejado.send_keys(Enter)
+
+        #Seleciona órgão 
+
+        #FUNDAÇÃO PARQUES E JARDINS
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[2]").click()
+
+        #Selecionando Mês 
+        driver.find_element(By.XPATH,"/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[1]/div/div/a/span[1]").click()
+        Selec_Mes_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen3_search"]')
+        Selec_Mes_Desejado.send_keys(mes_anterior)
+        Selec_Mes_Desejado.send_keys(Enter)
+
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[1]/div/select/option[12]").click
+
+        #Seleciona ANO
+        if InfoData == 'janeiro':
+            driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[2]/div/div/a/span[1]").click()
+            Selec_Ano_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen5_search"]')
+            Selec_Ano_Desejado.send_keys(Ano_Anterior)
+            Selec_Ano_Desejado.send_keys(Enter)
+        else:
+            driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[2]/div/div/a/span[1]").click()
+            Selec_Ano_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen5_search"]')
+            Selec_Ano_Desejado.send_keys(Ano_Atual)
+            Selec_Ano_Desejado.send_keys(Enter)
+
+        #Seleciona Arquivo CSV Export
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
+        time.sleep(10)
+
+        #Seleciona órgão 
+        #PENSIONISTAS DO MUNICIPIO DO RIO DE JANEIRO RJ
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[3]").click()
+
+        #Seleciona Arquivo CSV Export
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
+        time.sleep(10)
+
+        #Seleciona órgão 
+        #EMPRESA MUNICIPAL DE MULTIMEIOS LTDA
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[4]").click()
+
+        #Seleciona Arquivo CSV Export
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
+        time.sleep(10)
+
+        #Seleciona órgão 
+        #GUARDA MUNICIPAL DO RIO DE JANEIRO
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[5]").click()
+
+        #Seleciona Arquivo CSV Export
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
+        time.sleep(10)
+
+        #Seleciona órgão 
+        #EMPRESA PUBLICA DE SAUDE DO RIO DE JANEIRO
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[6]").click()
+
+        #Seleciona Arquivo CSV Export
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
+        time.sleep(10)
+
+        #Seleciona órgão 
+        #INSTITUTO DE PREVIDENCIA E ASSISTENCIA DO M.R.J
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[7]").click()
+
+        #Seleciona Arquivo CSV Export
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
+        time.sleep(10)
+
+        #Seleciona órgão 
+        #Prefeitura RJ
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[8]").click()
+
+        #Seleciona Arquivo CSV Export
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
+        time.sleep(10)
+
+        #Seleciona órgão 
+        #FUNDO MESPECIAL DE PREVIDENCIA DO MUNICIPIO DO RJ
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[9]").click()
+
+        #Seleciona Arquivo CSV Export
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
+        time.sleep(10)
+
+        #Seleciona o Produto CARTÃO DE CRÉDITO para Relatório
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[1]/div/div/a/span[1]").click() 
+        Selec_Produto_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen1_search"]')
+        Selec_Produto_Desejado.send_keys("CARTÃO DE CRÉDITO")
+        Selec_Produto_Desejado.send_keys(Enter)
+
+        #Seleciona órgão 
+
+        #FUNDAÇÃO PARQUES E JARDINS
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[2]").click()
+
+        #Selecionando Mês 
+        driver.find_element(By.XPATH,"/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[1]/div/div/a/span[1]").click()
+        Selec_Mes_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen3_search"]')
+        Selec_Mes_Desejado.send_keys(mes_anterior)
+        Selec_Mes_Desejado.send_keys(Enter)
+
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[1]/div/select/option[12]").click
+
+        #SELECIONA ANO
+        if InfoData == 'janeiro':
+            driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[2]/div/div/a/span[1]").click()
+            Selec_Ano_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen5_search"]')
+            Selec_Ano_Desejado.send_keys(Ano_Anterior)
+            Selec_Ano_Desejado.send_keys(Enter)
+        else:
+            driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[2]/div/div/a/span[1]").click()
+            Selec_Ano_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen5_search"]')
+            Selec_Ano_Desejado.send_keys(Ano_Atual)
+            Selec_Ano_Desejado.send_keys(Enter)
+
+        #Seleciona Arquivo CSV Export
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
+        time.sleep(10)
+
+        #Seleciona órgão 
+        #PENSIONISTAS DO MUNICIPIO DO RIO DE JANEIRO RJ
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[3]").click()
+
+        #Seleciona Arquivo CSV Export
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
+        time.sleep(10)
+
+        #Seleciona órgão 
+        #EMPRESA MUNICIPAL DE MULTIMEIOS LTDA
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[4]").click()
+
+        #Seleciona Arquivo CSV Export
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
+        time.sleep(10)
+
+        #Seleciona órgão 
+        #GUARDA MUNICIPAL DO RIO DE JANEIRO
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[5]").click()
+
+        #Seleciona Arquivo CSV Export
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
+        time.sleep(10)
+
+        #Seleciona órgão 
+        #EMPRESA PUBLICA DE SAUDE DO RIO DE JANEIRO
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[6]").click()
+
+        #Seleciona Arquivo CSV Export
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
+        time.sleep(10)
+
+        #Seleciona órgão 
+        #INSTITUTO DE PREVIDENCIA E ASSISTENCIA DO M.R.J
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[7]").click()
+
+        #Seleciona Arquivo CSV Export
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
+        time.sleep(10)
+
+        #Seleciona órgão 
+        #Prefeitura RJ
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[8]").click()
+
+        #Seleciona Arquivo CSV Export
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
+        time.sleep(10)
+
+        #Seleciona órgão 
+        #FUNDO MESPECIAL DE PREVIDENCIA DO MUNICIPIO DO RJ
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[9]").click()
+
+        #Seleciona Arquivo CSV Export
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
+        time.sleep(10)
+
+        #Seleciona o Produto BENEFICIO COMPRAS para Relatório
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[1]/div/div/a/span[1]").click() 
+        Selec_Produto_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen1_search"]') 
+        Selec_Produto_Desejado.send_keys("BENEFICIO COMPRAS")
+        Selec_Produto_Desejado.send_keys(Enter)
+
+        #Seleciona órgão 
+
+        #FUNDAÇÃO PARQUES E JARDINS
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[2]").click()
+
+        #Selecionando Mês 
+        driver.find_element(By.XPATH,"/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[1]/div/div/a/span[1]").click()
+        Selec_Mes_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen3_search"]')
+        Selec_Mes_Desejado.send_keys(mes_anterior)
+        Selec_Mes_Desejado.send_keys(Enter)
+
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[1]/div/select/option[12]").click
+
+        #Seleciona ANO
+        if InfoData == 'janeiro':
+            driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[2]/div/div/a/span[1]").click()
+            Selec_Ano_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen5_search"]')
+            Selec_Ano_Desejado.send_keys(Ano_Anterior)
+            Selec_Ano_Desejado.send_keys(Enter)
+        else:
+            driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[2]/div/div/a/span[1]").click()
+            Selec_Ano_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen5_search"]')
+            Selec_Ano_Desejado.send_keys(Ano_Atual)
+            Selec_Ano_Desejado.send_keys(Enter)
+
+        #Seleciona Arquivo CSV Export
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
+        time.sleep(10)
+
+        #Seleciona órgão
         #PENSIONISTAS DO MUNICIPIO DO RIO DE JANEIRO RJ
         driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[3]").click()
 
@@ -1148,7 +1512,8 @@ def Relatorios_ProcRJ():
 #Relatorios_ConsigFacil() #João Pessoa e Campina grande Funcional 
 
 
-Relatorios_CIP() # Necessita terminar o portal da SEFAZ
+# Relatorios_CIP() # 100% Funcional Relatório Definitivo
+
 
 RodarProcsVPN = input("Digite 's' se deseja rodar as processadoras que necessitam de VPN ou 'n' para pular\n")
 
@@ -1156,14 +1521,13 @@ if RodarProcsVPN == 's':
     Relatorios_NeoConsig() # Precisa ser feito conectado a forticlient
     Relatorios_ConsigPR() # Precisa ser feito conectado a forticlient
 elif RodarProcsVPN =='n':
-    print("")
+    print("Pulando para a processadora do Rio de Janeiro")
 elif RodarProcsVPN == 'S':
     Relatorios_NeoConsig() # Precisa ser feito conectado a forticlient
     Relatorios_ConsigPR() # Precisa ser feito conectado a forticlient
 elif RodarProcsVPN =='N':
-    print("")
+    print("Pulando para a processadora do Rio de Janeiro")
 else:
-    print("Digite 'n' ou 's'")
-    quit()
+    print("")
 
-Relatorios_ProcRJ() #100% Funcional
+Relatorios_ProcRJ() #100% Funcional Relatório Definitivo

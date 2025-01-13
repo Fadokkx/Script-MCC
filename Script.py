@@ -1,6 +1,7 @@
 import os
 import time
 import locale
+import shutil
 from selenium import webdriver
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
@@ -16,7 +17,7 @@ locale.setlocale(locale.LC_TIME, "pt_BR.UTF-8")
 
 #Define a variáveis dos sites das Processadoras
 
-#Zetra
+#Zetra #CONSIGNAÇÕES
 Proc_EMBU = "https://portal.econsig.com.br/embudasartes/v3/autenticarUsuario?t=20241226140450#no-back"
 Proc_IGEPREV = "https://portal.econsig.com.br/igeprev/v3/autenticarUsuario#no-back"
 Proc_PrefSBC ="https://www.econsig.com.br/sbc/v3/autenticarUsuario?t=20190520100728#no-back"
@@ -24,6 +25,9 @@ Proc_Pref_Serra_ES = "https://www.econsig.com.br/serra"
 Proc_PrefUberlandia = "https://www.econsig.com.br/uberlandia"
 Proc_PrefCuritiba = "https://www2.econsig.com.br/curitiba/v3/autenticarUsuario?t=20230904104333#no-back"
 Proc_HospDoServPubSP = "https://www2.econsig.com.br/hspm/v3/autenticarUsuario#no-back"
+
+#SIAPE
+
 
 #CIP
 Proc_GovPefSP = "https://www.portaldoconsignado.org.br/home?37"
@@ -53,6 +57,8 @@ Proc_GovGoias = "https://www.neoconsig.com.br/neoconsig/"
 Proc_Sorocaba = "https://www.neoconsig.com.br/neoconsig/"
 Proc_Alagoas = "https://www.neoconsig.com.br/neoconsig/"
 
+#BPO
+BPO = "https://front.meucashcard.com.br/WebAppBPOCartao/Login/ICLogin?ReturnUrl=%2FWebAppBPOCartao%2FPages%2FProposta%2FICPropostaCartao"
 
 # Pega variaveis de login Zetra de ambiente do sistema (Placheholders)
 try:
@@ -97,6 +103,64 @@ try:
 except Exception as e:
     print(f"Erro {e}")
 
+#Pega variavel de login BPO do ambiente do sistema
+try:
+    Login_BPO = os.getenv("User_BPO_Value")
+    Senha_BPO = os.getenv("BPO_Psw_Value")
+    if not all ([Login_BPO, Senha_BPO]):
+        raise ValueError ("Coloque os valores nas variaveis do ambiente")
+except Exception as e:
+    print(f"Erro {e}")
+
+pasta_downloads = os.path.expanduser("~/Downloads")
+
+import os
+import shutil
+ 
+def renomear_e_mover_arquivos(pasta_origem, pasta_destino, parametro_nome, novo_nome_base):
+    """
+    Renomeia e move arquivos que contenham um parâmetro no nome para uma pasta de destino.
+ 
+    :param pasta_origem: Caminho da pasta onde os arquivos estão localizados (ex.: Downloads).
+    :param pasta_destino: Caminho da pasta para onde os arquivos serão movidos.
+    :param parametro_nome: Texto que deve estar no nome dos arquivos a serem renomeados e movidos.
+    :param novo_nome_base: Base do novo nome para os arquivos renomeados.
+    """
+    try:
+        # Criar a pasta de destino, se não existir
+        if not os.path.exists(pasta_destino):
+            os.makedirs(pasta_destino)
+            print(f"Pasta de destino criada: {pasta_destino}")
+ 
+        # Listar arquivos na pasta de origem
+        arquivos = os.listdir(pasta_origem)
+        contador = 1  # Contador para evitar nomes duplicados
+ 
+        for arquivo in arquivos:
+            caminho_origem = os.path.join(pasta_origem, arquivo)
+ 
+            # Ignorar pastas
+            if os.path.isdir(caminho_origem):
+                continue
+ 
+            # Verificar se o parâmetro está no nome do arquivo
+            if parametro_nome in arquivo:
+                # Criar o novo nome do arquivo
+                extensao = os.path.splitext(arquivo)[1]  # Pega a extensão do arquivo
+                novo_nome = f"{novo_nome_base}_{contador}{extensao}"
+                contador += 1
+ 
+                caminho_destino = os.path.join(pasta_destino, novo_nome)
+ 
+                # Renomear e mover o arquivo
+                shutil.move(caminho_origem, caminho_destino)
+                print(f"Renomeado e movido: {arquivo} -> {novo_nome}")
+ 
+        print("Renomeação e movimentação concluídas!")
+    except Exception as e:
+        print(f"Ocorreu um erro: {e}")
+ 
+
 #Variaveis Comandos Selenium
 options = webdriver.EdgeOptions()
 driver = webdriver.Edge(options=options)
@@ -107,11 +171,20 @@ Seta_Baixo = Keys.ARROW_DOWN
 Enter = Keys.RETURN
 Tab = Keys.TAB
 
+#Variaveis Texto 
+Agosto = 'agosto' #Mês para geração de relatório retroativo
+Setembro = 'setembro' #Mês para geração de relatório retroativo
+Outubro = 'outubro' #Mês para geração de relatório retroativo
+Novembro = 'novembro' #Mês para geração de relatório retroativo
+
 #Variaveis Data
+data_completa = datetime.now()
 data_atual = date.today()
 data_inicio_mes = datetime(data_atual.year,data_atual.month,1 )
 data_inicio_mes_txt = data_inicio_mes.strftime('%d/%m/%Y')
 mes_anterior = (data_atual.replace(day=1) - timedelta(days=1)).strftime("%B")
+Dia_atual = data_atual.day
+Mes_Atual = data_completa.strftime("%B")
 Ano_Anterior = data_atual.year - 1 
 Ano_Atual = data_atual.year
 data_atual_txt = data_atual.strftime('%d/%m/%Y')
@@ -120,31 +193,42 @@ data_ontem_txt = data_de_ontem.strftime('%d/%m/%Y')
 data_finalDeSemana = data_atual - timedelta(days=3)
 data_finalDeSemana_txt = data_finalDeSemana.strftime('%d/%m/%y')
 InfoData = datetime.now().strftime('%B')
+data_arquivo = datetime.now().strftime("%d.%m.%Y")
 
-"""
-ATIVAR QUANDO TIVER ERROS RECORRENTES !
+def teste_variaveis():
+    # ATIVAR QUANDO TIVER ERROS RECORRENTES OU ATUALIZAÇÃO NAS VARIÁVEIS !
 
-#Teste Funcionabilidade Variáveis data
-print("Ontem foi dia: ", data_ontem_txt)
-print("O final de semana começou no dia: ", data_finalDeSemana_txt)
-print(data_ontem_txt)
-print(data_inicio_mes_txt)
-print(mes_anterior)
-print(Ano_Anterior)
-print(Ano_Atual)
-print(InfoData)
-print("\n")
-#Testa Getenv para verificar se há erros nas variáveis
-print(ZETRA_Username_Values)
-print(ZETRA_Password_Values)
-print(User_CIP)
-print(Senha_CIP)
-print(ConsigFacil_Username_Values)
-print(ConsigFacil_Psw_Values)
-print(Acesso_NeoConsigRJ)
-print(NeoConsig_Username_Values)
-print('\n')
-"""
+    #Teste Funcionabilidade Variáveis data
+    print("Ontem foi dia: ", data_ontem_txt)
+    print("O final de semana começou no dia: ", data_finalDeSemana_txt)
+    print(data_ontem_txt)
+    print(data_inicio_mes_txt)
+    print(mes_anterior)
+    print(Mes_Atual)
+    print(Ano_Anterior)
+    print(Ano_Atual)
+    print(InfoData)
+    print(Dia_atual)
+    print("\n")
+
+    #Testa Getenv para verificar se há erros nas variáveis
+    print(ZETRA_Username_Values)
+    print(ZETRA_Password_Values)
+    print(User_CIP)
+    print(Senha_CIP)
+    print(ConsigFacil_Username_Values)
+    print(ConsigFacil_Psw_Values)
+    print(Acesso_NeoConsigRJ)
+    print(NeoConsig_Username_Values)
+    print(Login_BPO)
+    print(Senha_BPO)
+    print('\n')
+
+    #Testa Variaveis de texto
+    print(Agosto)
+    print(Outubro)
+    print(Novembro)
+
 
 #Logins na ZETRA---------------------------------------------------------
 def Relatorios_Zetra():
@@ -161,30 +245,25 @@ def Relatorios_Zetra():
     CaptchaZetra.send_keys(ZetraCaptcha_Resolver)
     CaptchaZetra.send_keys(Enter)
     time.sleep(1)
+    
     #Começa a geração de relatório
     driver.find_element(By.XPATH, "/html/body/section/div[2]/div/div/div[1]/div[2]/ul/li[3]/a").click()
     time.sleep(1)
     driver.find_element(By.XPATH,"/html/body/section/div[2]/div/div/div[1]/div[2]/ul/div[2]/ul/li[1]/a").click()
+    
     #Data de inclusão/Alteração
     time.sleep(2)
-    """
     Selec_data = driver.find_element(By.XPATH,"/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[2]/div/div[1]/div/div[2]/input")
-    Selec_data.send_keys(data_ontem_txt)
+    Selec_data.send_keys(data_inicio_mes_txt)
     Selec_data_final = driver.find_element(By.XPATH,"/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[2]/div/div[2]/div/div[2]/input")
     Selec_data_final.send_keys(data_atual_txt)
-    Selec_Estabelecim = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[4]/select").click()
-    Achar_Estabelecim = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[4]/select")
-    Achar_Estabelecim.send_keys(Seta_Baixo)
-    Achar_Estabelecim.send_keys(Enter)
+    driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[4]/select").click()
 
 
     #CheckBox
 
     #Situação servidor
-    Sit_Servidor_Zetra = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/fieldset[1]/div[2]/div/div[1]/span/input").click()
-
-    #Situação do contrato
-    #Sit_contrato_Zetra = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/fieldset[2]/div[2]/div/div[7]/span/input").click()
+    driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/fieldset[1]/div[2]/div/div[1]/span/input").click()
 
     #Fim das checkbox
 
@@ -211,7 +290,6 @@ def Relatorios_Zetra():
     Senha_Autorizador.send_keys(ZETRA_Password_Values)
     driver.find_element(By.XPATH, "/html/body/div[2]/div[3]/div/button[2]").click()
     time.sleep(7)
-    """
     time.sleep(7)
     driver.execute_script ("document.body.style.zoom='33%'")
     driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[3]/div[2]/div/div[2]/table/tbody/tr[1]/td[4]/div/div/a")
@@ -222,10 +300,18 @@ def Relatorios_Zetra():
     driver.execute_script ("document.body.style.zoom='100%'")
 
     time.sleep(7)
-    #FALTA ARRUMAR ABAIXO !!!
+    # Configuração e chamada da função
+    pasta_downloads = os.path.expanduser("~/Downloads")  # Pasta de origem (Downloads)
+ 
+    renomear_e_mover_arquivos(
+        pasta_origem= pasta_downloads,
+        pasta_destino= r"C:\Relatórios\Zetra\Embu",
+        parametro_nome= "consignacoes_",
+        novo_nome_base= f"Embu_Zetra_{data_arquivo}"
+)
+     
     #Começa o login na Processadora da IGPREV
     driver.get(Proc_IGEPREV)
-    assert "SISTEMA DIGITAL DE CONSIGNAÇÕES" in driver.title
     UserZetra = driver.find_element(By.XPATH, "/html/body/section/div/div[1]/form/div[1]/input")
     UserZetra.send_keys(ZETRA_Username_Values)
     UserZetra.send_keys(Enter)
@@ -238,30 +324,23 @@ def Relatorios_Zetra():
     time.sleep(1)
     #Começa a geração de relatório
     driver.find_element(By.XPATH, '//*[@id="container"]/ul/li[3]/a').click()
-    driver.find_element(By.XPATH,'//*[@id="menuRelatorio"]/ul/li[2]/a').click() #ERRO
+    time.sleep(2)
+    driver.find_element(By.XPATH,"/html/body/section/div[2]/div/div/div[1]/div[2]/ul/div[2]/ul/li[2]/a").click() #ERRO
     #Data de inclusão/Alteração
     time.sleep(2)
     Selec_data = driver.find_element(By.XPATH,"/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[2]/div/div[1]/div/div[2]/input")
-    Selec_data.send_keys(data_ontem_txt)
+    Selec_data.send_keys(data_inicio_mes_txt)
     Selec_data_final = driver.find_element(By.XPATH,"/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[2]/div/div[2]/div/div[2]/input")
     Selec_data_final.send_keys(data_atual_txt)
-    Selec_Estabelecim = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[4]/select").click()
-    Achar_Estabelecim = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[4]/select")
-    Achar_Estabelecim.send_keys(Seta_Baixo)
-    Achar_Estabelecim.send_keys(Enter)
 
     #CheckBox
 
     #Situação servidor
-    Sit_Servidor_Zetra = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/fieldset[1]/div[2]/div/div[1]/span/input").click()
-
-    #Situação do contrato
-    #Sit_contrato_Zetra = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/fieldset[2]/div[2]/div/div[7]/span/input").click()
+    driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/fieldset[1]/div[2]/div/div[1]/span/input").click()
 
     #Fim das checkbox
 
     #Selecionar tipo de arquivo
-    #driver.find_element(By.ID, "formato").click()
     Selec_tipo_Arquivo = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[11]/select")
     Selec_tipo_Arquivo.send_keys(Seta_Baixo)
     Selec_tipo_Arquivo.send_keys(Seta_Baixo)
@@ -271,8 +350,6 @@ def Relatorios_Zetra():
     driver.find_element(By.ID, "btnEnvia")
     time.sleep(3)
     driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[2]/a").click()
-    #Selec_BotEnv = driver.find_element(By.ID, "btnEnvia")
-    #Selec_BotEnv.send_keys(Enter)
     time.sleep(3)
 
     #Autorização Gerador
@@ -294,10 +371,15 @@ def Relatorios_Zetra():
     driver.execute_script ("document.body.style.zoom='100%'")
 
     time.sleep(7)
+    renomear_e_mover_arquivos(
+        pasta_origem= pasta_downloads,
+        pasta_destino= r"C:\Relatórios\Zetra\IGEPREV",
+        parametro_nome= "consignacoes_",
+        novo_nome_base= f"IGEPREV_Zetra_{data_arquivo}"
+)
 
     #Começa o login na Processadora do Hospital do Servidor Público de São Paulo
     driver.get(Proc_HospDoServPubSP)
-    assert "SISTEMA DIGITAL DE CONSIGNAÇÕES" in driver.title
     UserZetra = driver.find_element(By.XPATH, "/html/body/section/div/div[1]/form/div[1]/input")
     UserZetra.send_keys(ZETRA_Username_Values)
     UserZetra.send_keys(Enter)
@@ -308,33 +390,26 @@ def Relatorios_Zetra():
     CaptchaZetra.send_keys(ZetraCaptcha_Resolver)
     CaptchaZetra.send_keys(Enter)
     time.sleep(1)
+
     #Começa a geração de relatório
-    driver.find_element(By.XPATH, "/html/body/section/div[2]/div/div/div[1]/div[2]/ul/li[3]/a").click()
-    driver.find_element(By.XPATH,"/html/body/section/div[2]/div/div/div[1]/div[2]/ul/div[2]/ul/li[1]/a").click()
+    driver.find_element(By.XPATH, '//*[@id="container"]/ul/li[3]/a').click()
+    time.sleep(2)
+    driver.find_element(By.XPATH,"/html/body/section/div[2]/div/div/div[1]/div[2]/ul/div[2]/ul/li[2]/a").click() #ERRO
     #Data de inclusão/Alteração
     time.sleep(2)
-
     Selec_data = driver.find_element(By.XPATH,"/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[2]/div/div[1]/div/div[2]/input")
-    Selec_data.send_keys(data_ontem_txt)
+    Selec_data.send_keys(data_inicio_mes_txt)
     Selec_data_final = driver.find_element(By.XPATH,"/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[2]/div/div[2]/div/div[2]/input")
     Selec_data_final.send_keys(data_atual_txt)
-    Selec_Estabelecim = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[4]/select").click()
-    Achar_Estabelecim = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[4]/select")
-    Achar_Estabelecim.send_keys(Seta_Baixo)
-    Achar_Estabelecim.send_keys(Enter)
 
     #CheckBox
 
     #Situação servidor
-    Sit_Servidor_Zetra = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/fieldset[1]/div[2]/div/div[1]/span/input").click()
-
-    #Situação do contrato
-    #Sit_contrato_Zetra = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/fieldset[2]/div[2]/div/div[7]/span/input").click()
+    driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/fieldset[1]/div[2]/div/div[1]/span/input").click()
 
     #Fim das checkbox
 
     #Selecionar tipo de arquivo
-    #driver.find_element(By.ID, "formato").click()
     Selec_tipo_Arquivo = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[11]/select")
     Selec_tipo_Arquivo.send_keys(Seta_Baixo)
     Selec_tipo_Arquivo.send_keys(Seta_Baixo)
@@ -344,8 +419,6 @@ def Relatorios_Zetra():
     driver.find_element(By.ID, "btnEnvia")
     time.sleep(3)
     driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[2]/a").click()
-    #Selec_BotEnv = driver.find_element(By.ID, "btnEnvia")
-    #Selec_BotEnv.send_keys(Enter)
     time.sleep(3)
 
     #Autorização Gerador
@@ -362,15 +435,20 @@ def Relatorios_Zetra():
     driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[3]/div[2]/div/div[2]/table/tbody/tr[1]/td[4]/div/div/a")
     #Click_OpRel = driver.find_element(By.XPATH, '//*[@id="userMenu"]').click()
     time.sleep(1)
-    Click_DownloadRel = driver.find_element(By.XPATH, '//*[@id="userMenu"]/div').click()
+    driver.find_element(By.XPATH, '//*[@id="userMenu"]/div').click()
     driver.find_element(By.XPATH, '//*[@id="dataTables"]/tbody/tr[1]/td[4]/div/div/div/a[1]').click()
     driver.execute_script ("document.body.style.zoom='100%'")
 
     time.sleep(7)
+    renomear_e_mover_arquivos(
+        pasta_origem= pasta_downloads,
+        pasta_destino= r"C:\Relatórios\Zetra\Hospital_Do_Serv_Publico",
+        parametro_nome= "consignacoes_",
+        novo_nome_base= f"Hospital_do_servidor_publico_de_SP_Zetra_{data_arquivo}"
+)
 
     #Começa o login na Processadora da Prefeitura da Serra ES
     driver.get(Proc_Pref_Serra_ES)
-    assert "SISTEMA DIGITAL DE CONSIGNAÇÕES" in driver.title
     UserZetra = driver.find_element(By.XPATH, "/html/body/section/div/div[1]/form/div[1]/input")
     UserZetra.send_keys(ZETRA_Username_Values)
     UserZetra.send_keys(Enter)
@@ -382,32 +460,24 @@ def Relatorios_Zetra():
     CaptchaZetra.send_keys(Enter)
     time.sleep(1)
     #Começa a geração de relatório
-    driver.find_element(By.XPATH, "/html/body/section/div[2]/div/div/div[1]/div[2]/ul/li[3]/a").click()
-    driver.find_element(By.XPATH,"/html/body/section/div[2]/div/div/div[1]/div[2]/ul/div[2]/ul/li[1]/a").click()
+    driver.find_element(By.XPATH, '//*[@id="container"]/ul/li[3]/a').click()
+    time.sleep(2)
+    driver.find_element(By.XPATH,"/html/body/section/div[2]/div/div/div[1]/div[2]/ul/div[2]/ul/li[1]/a").click() #ERRO
     #Data de inclusão/Alteração
     time.sleep(2)
-
     Selec_data = driver.find_element(By.XPATH,"/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[2]/div/div[1]/div/div[2]/input")
-    Selec_data.send_keys(data_ontem_txt)
+    Selec_data.send_keys(data_inicio_mes_txt)
     Selec_data_final = driver.find_element(By.XPATH,"/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[2]/div/div[2]/div/div[2]/input")
     Selec_data_final.send_keys(data_atual_txt)
-    Selec_Estabelecim = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[4]/select").click()
-    Achar_Estabelecim = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[4]/select")
-    Achar_Estabelecim.send_keys(Seta_Baixo)
-    Achar_Estabelecim.send_keys(Enter)
 
     #CheckBox
 
     #Situação servidor
-    Sit_Servidor_Zetra = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/fieldset[1]/div[2]/div/div[1]/span/input").click()
-
-    #Situação do contrato
-    #Sit_contrato_Zetra = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/fieldset[2]/div[2]/div/div[7]/span/input").click()
+    driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/fieldset[1]/div[2]/div/div[1]/span/input").click()
 
     #Fim das checkbox
 
     #Selecionar tipo de arquivo
-    #driver.find_element(By.ID, "formato").click()
     Selec_tipo_Arquivo = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[11]/select")
     Selec_tipo_Arquivo.send_keys(Seta_Baixo)
     Selec_tipo_Arquivo.send_keys(Seta_Baixo)
@@ -417,8 +487,6 @@ def Relatorios_Zetra():
     driver.find_element(By.ID, "btnEnvia")
     time.sleep(3)
     driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[2]/a").click()
-    #Selec_BotEnv = driver.find_element(By.ID, "btnEnvia")
-    #Selec_BotEnv.send_keys(Enter)
     time.sleep(3)
 
     #Autorização Gerador
@@ -433,13 +501,18 @@ def Relatorios_Zetra():
     time.sleep(7)
     driver.execute_script ("document.body.style.zoom='33%'")
     driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[3]/div[2]/div/div[2]/table/tbody/tr[1]/td[4]/div/div/a")
-    #Click_OpRel = driver.find_element(By.XPATH, '//*[@id="userMenu"]').click()
     time.sleep(1)
-    Click_DownloadRel = driver.find_element(By.XPATH, '//*[@id="userMenu"]/div').click()
+    driver.find_element(By.XPATH, '//*[@id="userMenu"]/div').click()
     driver.find_element(By.XPATH, '//*[@id="dataTables"]/tbody/tr[1]/td[4]/div/div/div/a[1]').click()
     driver.execute_script ("document.body.style.zoom='100%'")
 
     time.sleep(7)
+    renomear_e_mover_arquivos(
+        pasta_origem= pasta_downloads,
+        pasta_destino= r"C:\Relatórios\Zetra\Prefeitura_da_Serra_ES",
+        parametro_nome= "consignacoes_",
+        novo_nome_base= f"Prefeitura_da_Serra_ES_Zetra_{data_arquivo}"
+    )
 
     #Começa o login na Processadora da prefeitura de Curitiba
     driver.get(Proc_PrefCuritiba)
@@ -454,32 +527,24 @@ def Relatorios_Zetra():
     CaptchaZetra.send_keys(Enter)
     time.sleep(1)
     #Começa a geração de relatório
-    driver.find_element(By.XPATH, "/html/body/section/div[2]/div/div/div[1]/div[2]/ul/li[3]/a").click()
-    driver.find_element(By.XPATH,"/html/body/section/div[2]/div/div/div[1]/div[2]/ul/div[2]/ul/li[1]/a").click()
+    driver.find_element(By.XPATH, '//*[@id="container"]/ul/li[3]/a').click()
+    time.sleep(2)
+    driver.find_element(By.XPATH,"/html/body/section/div[2]/div/div/div[1]/div[2]/ul/div[2]/ul/li[1]/a").click() #ERRO
     #Data de inclusão/Alteração
     time.sleep(2)
-
     Selec_data = driver.find_element(By.XPATH,"/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[2]/div/div[1]/div/div[2]/input")
-    Selec_data.send_keys(data_ontem_txt)
+    Selec_data.send_keys(data_inicio_mes_txt)
     Selec_data_final = driver.find_element(By.XPATH,"/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[2]/div/div[2]/div/div[2]/input")
     Selec_data_final.send_keys(data_atual_txt)
-    Selec_Estabelecim = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[4]/select").click()
-    Achar_Estabelecim = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[4]/select")
-    Achar_Estabelecim.send_keys(Seta_Baixo)
-    Achar_Estabelecim.send_keys(Enter)
 
     #CheckBox
 
     #Situação servidor
-    Sit_Servidor_Zetra = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/fieldset[1]/div[2]/div/div[1]/span/input").click()
-
-    #Situação do contrato
-    #Sit_contrato_Zetra = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/fieldset[2]/div[2]/div/div[7]/span/input").click()
+    driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/fieldset[1]/div[2]/div/div[1]/span/input").click()
 
     #Fim das checkbox
 
     #Selecionar tipo de arquivo
-    #driver.find_element(By.ID, "formato").click()
     Selec_tipo_Arquivo = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[11]/select")
     Selec_tipo_Arquivo.send_keys(Seta_Baixo)
     Selec_tipo_Arquivo.send_keys(Seta_Baixo)
@@ -489,76 +554,6 @@ def Relatorios_Zetra():
     driver.find_element(By.ID, "btnEnvia")
     time.sleep(3)
     driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[2]/a").click()
-    #Selec_BotEnv = driver.find_element(By.ID, "btnEnvia")
-    #Selec_BotEnv.send_keys(Enter)
-    time.sleep(3)
-
-    #Autorização Gerador
-    driver.find_element(By.XPATH, "/html/body/div[2]/div[1]")
-    driver.find_element(By.XPATH,"/html/body/div[2]/div[2]/form")
-    Senha_Autorizador = driver.find_element(By.ID, "senha2aAutorizacao")
-    time.sleep(1)
-    Senha_Autorizador.send_keys(ZETRA_Password_Values)
-    driver.find_element(By.XPATH, "/html/body/div[2]/div[3]/div/button[2]").click()
-    time.sleep(7)
-
-    time.sleep(7)
-    driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[3]/div[2]/div/div[2]/table/thead/tr/th[3]")
-    Click_OpRel = driver.find_element(By.XPATH, '//*[@id="userMenu"]/div').click()
-    time.sleep(1)
-    Click_DownloadRel = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[3]/div[2]/div/div[2]/table/tbody/tr[1]/td[4]/div/div/div/a[1]").click()
-    driver.find_element(By.XPATH, '//*[@id="userMenu"]/div').click()
-
-    #Começa o login na Processadora de São Bernardo do Campo
-    driver.get(Proc_PrefSBC)
-    UserZetra = driver.find_element(By.XPATH, "/html/body/section/div/div[1]/form/div[1]/input")
-    UserZetra.send_keys(ZETRA_Username_Values)
-    UserZetra.send_keys(Enter)
-    PswZetra = driver.find_element(By.XPATH, "/html/body/section/div/div[1]/form/div[3]/input[1]")
-    PswZetra.send_keys(ZETRA_Password_Values)
-    ZetraCaptcha_Resolver = input("Digite o Captcha: ")
-    CaptchaZetra = driver.find_element(By.ID, "captcha")
-    CaptchaZetra.send_keys(ZetraCaptcha_Resolver)
-    CaptchaZetra.send_keys(Enter)
-    time.sleep(1)
-    #Começa a geração de relatório
-    driver.find_element(By.XPATH, "/html/body/section/div[2]/div/div/div[1]/div[2]/ul/li[3]/a").click()
-    driver.find_element(By.XPATH,"/html/body/section/div[2]/div/div/div[1]/div[2]/ul/div[2]/ul/li[1]/a").click()
-    #Data de inclusão/Alteração
-    time.sleep(2)
-
-    Selec_data = driver.find_element(By.XPATH,"/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[2]/div/div[1]/div/div[2]/input")
-    Selec_data.send_keys(data_ontem_txt)
-    Selec_data_final = driver.find_element(By.XPATH,"/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[2]/div/div[2]/div/div[2]/input")
-    Selec_data_final.send_keys(data_atual_txt)
-    Selec_Estabelecim = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[4]/select").click()
-    Achar_Estabelecim = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[4]/select")
-    Achar_Estabelecim.send_keys(Seta_Baixo)
-    Achar_Estabelecim.send_keys(Enter)
-
-    #CheckBox
-
-    #Situação servidor
-    Sit_Servidor_Zetra = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/fieldset[1]/div[2]/div/div[1]/span/input").click()
-
-    #Situação do contrato
-    #Sit_contrato_Zetra = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/fieldset[2]/div[2]/div/div[7]/span/input").click()
-
-    #Fim das checkbox
-
-    #Selecionar tipo de arquivo
-    #driver.find_element(By.ID, "formato").click()
-    Selec_tipo_Arquivo = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[11]/select")
-    Selec_tipo_Arquivo.send_keys(Seta_Baixo)
-    Selec_tipo_Arquivo.send_keys(Seta_Baixo)
-    Selec_tipo_Arquivo.send_keys(Seta_Baixo)
-    Selec_tipo_Arquivo.send_keys(Enter)
-
-    driver.find_element(By.ID, "btnEnvia")
-    time.sleep(3)
-    driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[2]/a").click()
-    #Selec_BotEnv = driver.find_element(By.ID, "btnEnvia")
-    #Selec_BotEnv.send_keys(Enter)
     time.sleep(3)
 
     #Autorização Gerador
@@ -580,8 +575,15 @@ def Relatorios_Zetra():
     driver.execute_script ("document.body.style.zoom='100%'")
 
     time.sleep(7)
+    renomear_e_mover_arquivos(
+        pasta_origem= pasta_downloads,
+        pasta_destino= r"C:\Relatórios\Zetra\Prefeitura_de_Curitiba",
+        parametro_nome= "consignacoes_",
+        novo_nome_base= f"Prefeitura_de_Curitiba_Zetra_{data_arquivo}"
+    )
 
     #Começa o login na Processadora de Uberlândia
+    driver.get(Proc_PrefUberlandia)
     UserZetra = driver.find_element(By.XPATH, "/html/body/section/div/div[1]/form/div[1]/input")
     UserZetra.send_keys(ZETRA_Username_Values)
     UserZetra.send_keys(Enter)
@@ -593,32 +595,24 @@ def Relatorios_Zetra():
     CaptchaZetra.send_keys(Enter)
     time.sleep(1)
     #Começa a geração de relatório
-    driver.find_element(By.XPATH, "/html/body/section/div[2]/div/div/div[1]/div[2]/ul/li[3]/a").click()
-    driver.find_element(By.XPATH,"/html/body/section/div[2]/div/div/div[1]/div[2]/ul/div[2]/ul/li[1]/a").click()
+    driver.find_element(By.XPATH, '//*[@id="container"]/ul/li[3]/a').click()
+    time.sleep(2)
+    driver.find_element(By.XPATH,"/html/body/section/div[2]/div/div/div[1]/div[2]/ul/div[2]/ul/li[1]/a").click() #ERRO
     #Data de inclusão/Alteração
     time.sleep(2)
-
     Selec_data = driver.find_element(By.XPATH,"/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[2]/div/div[1]/div/div[2]/input")
-    Selec_data.send_keys(data_ontem_txt)
+    Selec_data.send_keys(data_inicio_mes_txt)
     Selec_data_final = driver.find_element(By.XPATH,"/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[2]/div/div[2]/div/div[2]/input")
     Selec_data_final.send_keys(data_atual_txt)
-    Selec_Estabelecim = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[4]/select").click()
-    Achar_Estabelecim = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[4]/select")
-    Achar_Estabelecim.send_keys(Seta_Baixo)
-    Achar_Estabelecim.send_keys(Enter)
 
     #CheckBox
 
     #Situação servidor
-    Sit_Servidor_Zetra = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/fieldset[1]/div[2]/div/div[1]/span/input").click()
-
-    #Situação do contrato
-    #Sit_contrato_Zetra = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/fieldset[2]/div[2]/div/div[7]/span/input").click()
+    driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/fieldset[1]/div[2]/div/div[1]/span/input").click()
 
     #Fim das checkbox
 
     #Selecionar tipo de arquivo
-    #driver.find_element(By.ID, "formato").click()
     Selec_tipo_Arquivo = driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[11]/select")
     Selec_tipo_Arquivo.send_keys(Seta_Baixo)
     Selec_tipo_Arquivo.send_keys(Seta_Baixo)
@@ -628,8 +622,6 @@ def Relatorios_Zetra():
     driver.find_element(By.ID, "btnEnvia")
     time.sleep(3)
     driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[2]/a").click()
-    #Selec_BotEnv = driver.find_element(By.ID, "btnEnvia")
-    #Selec_BotEnv.send_keys(Enter)
     time.sleep(3)
 
     #Autorização Gerador
@@ -651,9 +643,12 @@ def Relatorios_Zetra():
     driver.execute_script ("document.body.style.zoom='100%'")
 
     time.sleep(7)
-
-
-
+    renomear_e_mover_arquivos(
+        pasta_origem= pasta_downloads,
+        pasta_destino= r"C:\Relatórios\Zetra\Uberlandia",
+        parametro_nome= "consignacoes_",
+        novo_nome_base= f"Uberlandia_Zetra_{data_arquivo}"
+    )
 #Logins na CIP---------------------------------------------------------
 
 def Relatorios_CIP():
@@ -680,7 +675,7 @@ def Relatorios_CIP():
     driver.find_element(By.XPATH,"/html/body/div/div/div[1]/div/div[2]/a/span").click()
     driver.find_element(By.XPATH,"/html/body/div/div/div[1]/div/div[2]/div/div/a").click()
     #Seleciona a Opção de Visão do Relatório
-    Selec_OP_Vis = driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[4]/div[1]/select").click
+    driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[4]/div[1]/select").click
     Achar_OP_Vis = driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[4]/div[1]/select")
     Achar_OP_Vis.send_keys(Seta_Baixo)
     Achar_OP_Vis.send_keys(Enter)
@@ -697,26 +692,42 @@ def Relatorios_CIP():
     #Seleciona as espécies disponíveis pra Espécieis selecionadas
     driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[5]/div[2]/div[9]/div/div[2]/span/div[2]/div/button[3]").click()
 
+    #Seleciona Data Inicio & Data Fim
+    Selec_Data_Inicio_CIP = driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[5]/div[2]/div[3]/div[1]/input")
+    Selec_Data_Inicio_CIP.send_keys(data_inicio_mes_txt)
+    Selec_Data_Fim_CIP = driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[5]/div[2]/div[3]/div[3]/input")
+    Selec_Data_Fim_CIP.send_keys(data_atual_txt)
+
     #Seleciona as caixas desejadas pro relatório
     
-    #Selcionar Nome reduzido do Órgão
-    driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[1]/tbody/tr[6]/td[1]/input").click()
-    #Selecionar Nome 
-    driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[1]/tbody/tr[7]/td[1]/input").click()
     #Selecionar Matricula
     driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[1]/tbody/tr[2]/td[2]/input").click()
     #Selecionar CPF
     driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[1]/tbody/tr[3]/td[2]/input").click()
+    #Selecionar Nome 
+    driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[1]/tbody/tr[7]/td[1]/input").click()
+    #Selcionar Nome reduzido do Órgão
+    driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[1]/tbody/tr[6]/td[1]/input").click()
+    #Selecionar Descrição da espécie
+    driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[3]/td[1]/input").click()
+    #Selecionar Número da averbação
+    driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[6]/td[1]/input").click()
     #Selecionar Número do contrato
     driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[7]/td[1]/input").click()
     #Selecionar situação da averbação
     driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[9]/td[1]/input").click()
+    #Selecionar Qtde de Parcela
+    driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[11]/td[1]/input").click()
+    #Selecionar Valor da Parcela
+    driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[12]/td[1]/input").click()
     #Selecionar Valor liberado
     driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[3]/td[2]/input").click()
     #Selecionar Número da última parcela processada
     driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[7]/td[2]/input").click()
     #Selecionar Data de início de contrato
     driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[11]/td[2]/input").click()
+    #Selecionar Data da inclusão da averbação
+    driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[13]/td[2]/input").click()
     
     #Fim das checkbox
 
@@ -725,6 +736,13 @@ def Relatorios_CIP():
     time.sleep(6)
     #Baixar Relatório NA MÃO !
     time.sleep(7)
+    renomear_e_mover_arquivos(
+        pasta_origem= pasta_downloads,
+        pasta_destino= r"C:\Relatórios\CIP\Mato_Grosso",
+        parametro_nome= "RA015 - Relatório Customizável de Averbação",
+        novo_nome_base= f"Mato_Grosso_CIP_{data_arquivo}"
+    )
+    time.sleep(5)
     #Volta pra home
     driver.get("https://www.portaldoconsignado.org.br/consignatario/autenticado?74")
     
@@ -760,24 +778,42 @@ def Relatorios_CIP():
     #Seleciona as espécies disponíveis pra Espécieis selecionadas
     Selec_ESPD_ESPS = driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[5]/div[2]/div[9]/div/div[2]/span/div[2]/div/button[3]").click()
 
-    #Selcionar Nome reduzido do Órgão
-    driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[1]/tbody/tr[6]/td[1]/input").click()
-    #Selecionar Nome 
-    driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[1]/tbody/tr[7]/td[1]/input").click()
+    #Seleciona Data Inicio & Data Fim
+    Selec_Data_Inicio_CIP = driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[5]/div[2]/div[3]/div[1]/input")
+    Selec_Data_Inicio_CIP.send_keys(data_inicio_mes_txt)
+    Selec_Data_Fim_CIP = driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[5]/div[2]/div[3]/div[3]/input")
+    Selec_Data_Fim_CIP.send_keys(data_atual_txt)
+
+    #Seleciona as caixas desejadas pro relatório
+    
     #Selecionar Matricula
     driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[1]/tbody/tr[2]/td[2]/input").click()
     #Selecionar CPF
     driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[1]/tbody/tr[3]/td[2]/input").click()
+    #Selecionar Nome 
+    driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[1]/tbody/tr[7]/td[1]/input").click()
+    #Selcionar Nome reduzido do Órgão
+    driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[1]/tbody/tr[6]/td[1]/input").click()
+    #Selecionar Descrição da espécie
+    driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[3]/td[1]/input").click()
+    #Selecionar Número da averbação
+    driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[6]/td[1]/input").click()
     #Selecionar Número do contrato
     driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[7]/td[1]/input").click()
     #Selecionar situação da averbação
     driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[9]/td[1]/input").click()
+    #Selecionar Qtde de Parcela
+    driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[11]/td[1]/input").click()
+    #Selecionar Valor da Parcela
+    driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[12]/td[1]/input").click()
     #Selecionar Valor liberado
     driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[3]/td[2]/input").click()
     #Selecionar Número da última parcela processada
     driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[7]/td[2]/input").click()
     #Selecionar Data de início de contrato
     driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[11]/td[2]/input").click()
+    #Selecionar Data da inclusão da averbação
+    driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[13]/td[2]/input").click()
     
     #Fim das checkbox
 
@@ -786,7 +822,14 @@ def Relatorios_CIP():
     time.sleep(6)
     #Baixar Relatório NA MÃO !
     time.sleep(7)
-    
+    renomear_e_mover_arquivos(
+        pasta_origem= pasta_downloads,
+        pasta_destino= r"C:\Relatórios\CIP\Prefeitura_de_SP",
+        parametro_nome= "RA015 - Relatório Customizável de Averbação",
+        novo_nome_base= f"Prefeitura_de_SP_CIP_{data_arquivo}"
+    )
+    time.sleep(5)
+
     driver.get("https://www.portaldoconsignado.org.br/consignatario/autenticado?74")
     Selec_Troca_Perfil_CIP = driver.find_element(By.XPATH, "/html/body/div/div/div[1]/div/div[3]/a/span").click()
     # Abre Box MS 
@@ -820,33 +863,58 @@ def Relatorios_CIP():
     driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[5]/div[2]/div[6]/div/div[2]/span/div[2]/div/button[3]").click()
     #Seleciona as espécies disponíveis pra Espécieis selecionadas
     driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[5]/div[2]/div[9]/div/div[2]/span/div[2]/div/button[3]").click()
+
+    #Seleciona Data Inicio & Data Fim
+    Selec_Data_Inicio_CIP = driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[5]/div[2]/div[3]/div[1]/input")
+    Selec_Data_Inicio_CIP.send_keys(data_inicio_mes_txt)
+    Selec_Data_Fim_CIP = driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[5]/div[2]/div[3]/div[3]/input")
+    Selec_Data_Fim_CIP.send_keys(data_atual_txt)
+
+    #Seleciona as caixas desejadas pro relatório
     
-    #Selcionar Nome reduzido do Órgão
-    driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[1]/tbody/tr[6]/td[1]/input").click()
-    #Selecionar Nome 
-    driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[1]/tbody/tr[7]/td[1]/input").click()
     #Selecionar Matricula
     driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[1]/tbody/tr[2]/td[2]/input").click()
     #Selecionar CPF
     driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[1]/tbody/tr[3]/td[2]/input").click()
+    #Selecionar Nome 
+    driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[1]/tbody/tr[7]/td[1]/input").click()
+    #Selcionar Nome reduzido do Órgão
+    driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[1]/tbody/tr[6]/td[1]/input").click()
+    #Selecionar Descrição da espécie
+    driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[3]/td[1]/input").click()
+    #Selecionar Número da averbação
+    driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[6]/td[1]/input").click()
     #Selecionar Número do contrato
     driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[7]/td[1]/input").click()
     #Selecionar situação da averbação
     driver.find_element(By.XPATH,"/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[9]/td[1]/input").click()
+    #Selecionar Qtde de Parcela
+    driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[11]/td[1]/input").click()
+    #Selecionar Valor da Parcela
+    driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[12]/td[1]/input").click()
     #Selecionar Valor liberado
     driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[3]/td[2]/input").click()
     #Selecionar Número da última parcela processada
     driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[7]/td[2]/input").click()
     #Selecionar Data de início de contrato
     driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[11]/td[2]/input").click()
+    #Selecionar Data da inclusão da averbação
+    driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[6]/div/div[2]/table[3]/tbody/tr[13]/td[2]/input").click()
     
     #Fim das checkbox
+    
     #Click Gerar Relatório
     driver.find_element(By.XPATH, "/html/body/div/div/div[2]/div/form/div[4]/div/div[7]/input[2]").click()
     time.sleep(6)
     #Baixar Relatório NA MÃO !
     time.sleep(7)
-
+    renomear_e_mover_arquivos(
+        pasta_origem= pasta_downloads,
+        pasta_destino= r"C:\Relatórios\CIP\SEFAZ",
+        parametro_nome= "RA015 - Relatório Customizável de Averbação",
+        novo_nome_base= f"SEFAZ_CIP_{data_arquivo}"
+    )
+    time.sleep(5)
 
 #Logins na CONSIGFACIL---------------------------------------------------------
 
@@ -869,195 +937,40 @@ def Relatorios_ConsigFacil():
     driver.find_element(By.XPATH,'//*[@id="modalExibeBanners"]/div/div/div[1]/button').click()
     time.sleep(1)
 
-    driver.execute_script ("document.body.style.zoom='50%'")
     #SELECIONA A ABA RELATÓRIO
     driver.find_element(By.XPATH,'//*[@id="sidebar"]/ul/div[1]/div[2]/div/div/div/li[6]/a').click()
     time.sleep(2)
-    driver.find_element(By.XPATH, '/html/body/div[1]/ul/div[1]/div[2]/div/div/div/li[6]/ul/li[15]/a').click() #SELECIONA O TIPO DE RELATORIO
+    driver.find_element(By.XPATH, '/html/body/div[1]/ul/div[1]/div[2]/div/div/div/li[6]/ul/li[2]/a').click() #SELECIONA O TIPO DE RELATORIO
     time.sleep(1)
+    driver.find_element(By.XPATH,"/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/form/table[2]/tbody/tr[5]/td[2]/div/select").click()
+    time.sleep(2)
+    driver.find_element(By.XPATH,"/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/form/table[2]/tbody/tr[5]/td[2]/div/select").click()
+    driver.find_element(By.XPATH, "/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/form/table[2]/tbody/tr[5]/td[2]/div/select/option[3]").click() #Mudar para Mês referente do Relatório (Atualmente "Janeiro 2025")
+    time.sleep(2)
+    #Seleciona OrderBy Data
+    driver.find_element(By.XPATH,"/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/form/table[2]/tbody/tr[9]/td[2]/select").click()
+    Selec_Order_By = driver.find_element(By.XPATH,"/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/form/table[2]/tbody/tr[9]/td[2]/select")
+    Selec_Order_By.send_keys(Seta_Baixo)
+    Selec_Order_By.send_keys(Enter)    
+    time.sleep(1)
+    driver.execute_script ("document.body.style.zoom='75%'")
+    #Seleciona Tipo de arquivo
+    driver.find_element(By.XPATH, "/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/form/table[2]/tbody/tr[12]/td[2]/select").click()
+    Selec_CSV_arquivo = driver.find_element(By.XPATH,"/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/form/table[2]/tbody/tr[12]/td[2]/select")
+    Selec_CSV_arquivo.send_keys(Seta_Baixo)
+    Selec_CSV_arquivo.send_keys(Enter)
+    driver.find_element(By.XPATH, "/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/form/table[2]/tbody/tr[13]/td/p/input").click()
     driver.execute_script ("document.body.style.zoom='100%'")
-    time.sleep(2)
-    driver.find_element(By.XPATH, '//*[@id="folha"]').click()
-
-    #EMLUR
-    driver.find_element(By.XPATH, '//*[@id="folha"]/option[2]').click()
-    time.sleep(2)
-    #Box impede visualização em tela do Download
-    driver.find_element(By.XPATH, "/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/form/div/div/div[2]/div[5]/div[2]/div/input").click()
-    time.sleep(2)
-    #Gera relatório
-    driver.find_element(By.XPATH,'//*[@id="frmservico"]/div/div/div[2]/div[6]/div/button').click()
-    time.sleep(10)
-
-    #FUNJOPE
-    driver.find_element(By.XPATH, '//*[@id="folha"]/option[3]').click()
-    #Gera relatório
-    driver.find_element(By.XPATH,'//*[@id="frmservico"]/div/div/div[2]/div[6]/div/button').click()
-    time.sleep(7)
-
-    #IPM Ativos e Inativos
-    driver.find_element(By.XPATH, '//*[@id="folha"]/option[4]').click()
-    #Gera relatório
-    driver.find_element(By.XPATH,'//*[@id="frmservico"]/div/div/div[2]/div[6]/div/button').click()
-    time.sleep(7)
-
-    #IPM Pensionistas
-    driver.find_element(By.XPATH, '//*[@id="folha"]/option[5]').click()
-    #Gera relatório
-    driver.find_element(By.XPATH,'//*[@id="frmservico"]/div/div/div[2]/div[6]/div/button').click()
-    time.sleep(7)
-
-    #PMJP
-    driver.find_element(By.XPATH, '//*[@id="folha"]/option[6]').click()
-    #Gera relatório
-    driver.find_element(By.XPATH,'//*[@id="frmservico"]/div/div/div[2]/div[6]/div/button').click()
-    time.sleep(7)
-
-    #SEMOB
-    driver.find_element(By.XPATH, '//*[@id="folha"]/option[7]').click()
-    #Gera relatório
-    driver.find_element(By.XPATH,'//*[@id="frmservico"]/div/div/div[2]/div[6]/div/button').click()
-    time.sleep(7)
-
-    #SMS
-    driver.find_element(By.XPATH, '//*[@id="folha"]/option[8]').click()
-    #Gera relatório
-    driver.find_element(By.XPATH,'//*[@id="frmservico"]/div/div/div[2]/div[6]/div/button').click()
-    time.sleep(7)
-
-
-    time.sleep(15)
-
-    """
-    #Começa o login na Processadora do Maranhão
-    driver.get(Proc_GovMaranhao)
-    User_ConsigFacil = driver.find_element (By.ID, "usuario")
-    User_ConsigFacil.clear()
-    User_ConsigFacil.send_keys(ConsigFacil_Username_Values)
-    Psw_ConsigFacil = driver.find_element (By.ID, "senha")
-    Psw_ConsigFacil.clear()
-    Psw_ConsigFacil.send_keys(ConsigFacil_Psw_Values)
-    ConsigFacil_CaptchaResolver = input("Digite o Captcha: ")
-    ConsigFacilCaptcha = driver.find_element(By.ID, "captcha")
-    ConsigFacilCaptcha.send_keys(ConsigFacil_CaptchaResolver)
-    Psw_ConsigFacil.send_keys(Keys.RETURN)
-    time.sleep(1) 
-
-    #Fecha Janela de novidades
-    driver.find_element(By.XPATH,'//*[@id="modalExibeBanners"]/div/div/div[1]/button').click()
-    time.sleep(1)
-
-
-    #Começa o login na Processadora de Pernambuco
-    driver.get(Proc_GovPernambuco)
-    #assert "ConsigFácil - Campina Grande" in driver.title
-    User_ConsigFacil = driver.find_element (By.ID, "usuario")
-    User_ConsigFacil.clear()
-    User_ConsigFacil.send_keys("ConsigFacil_Username_Values")
-    Psw_ConsigFacil = driver.find_element (By.ID, "senha")
-    Psw_ConsigFacil.clear()
-    Psw_ConsigFacil.send_keys("ConsigFacil_Psw_Value")
-    ConsigFacil_CaptchaResolver = input("Digite o Captcha: ")
-    ConsigFacilCaptcha = driver.find_element(By.ID, "captcha")
-    ConsigFacilCaptcha.send_keys(ConsigFacil_CaptchaResolver)
-    Psw_ConsigFacil.send_keys(Keys.RETURN)
-    time.sleep(1) 
-    """
-    #Começa o Login no Processadora do Instituto de previdência de Campina Grande
-    driver.get(Proc_IPSEM_CampinaGrande)
-    #assert "ConsigFácil - Campina Grande" in driver.title
-    User_ConsigFacil = driver.find_element (By.ID, "usuario")
-    User_ConsigFacil.clear()
-    User_ConsigFacil.send_keys(ConsigFacil_Username_Values)
-    Psw_ConsigFacil = driver.find_element (By.ID, "senha")
-    Psw_ConsigFacil.clear()
-    Psw_ConsigFacil.send_keys(ConsigFacil_Psw_Values)
-    ConsigFacil_CaptchaResolver = input("Digite o Captcha: ")
-    ConsigFacilCaptcha = driver.find_element(By.ID, "captcha")
-    ConsigFacilCaptcha.send_keys(ConsigFacil_CaptchaResolver)
-    Psw_ConsigFacil.send_keys(Keys.RETURN)
-    time.sleep(1) 
-    #Fecha Janela de novidades
-    driver.find_element(By.XPATH,'//*[@id="modalExibeBanners"]/div/div/div[1]/button').click()
-    time.sleep(1)
-
-    driver.execute_script ("document.body.style.zoom='50%'")
-    #SELECIONA A ABA RELATÓRIO
-    driver.find_element(By.XPATH,'//*[@id="sidebar"]/ul/div[1]/div[2]/div/div/div/li[6]/a').click()
-    time.sleep(2)
-    driver.find_element(By.XPATH, '/html/body/div[1]/ul/div[1]/div[2]/div/div/div/li[6]/ul/li[13]/a').click() #SELECIONA O TIPO DE RELATORIO
-    time.sleep(1)
-    driver.execute_script ("document.body.style.zoom='100%'")
-    time.sleep(2)
-    driver.find_element(By.XPATH, '//*[@id="folha"]').click()
-
-    #IPSEM - Instituto de Previdência 
-    driver.find_element(By.XPATH, '//*[@id="folha"]/option[2]').click()
-    time.sleep(2)
-    #Box impede visualização em tela do Download
-    driver.find_element(By.XPATH, "/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/form/div/div/div[2]/div[5]/div[2]/div/input").click()
-    time.sleep(2)
-    #Gera relatório
-    driver.find_element(By.XPATH,'//*[@id="frmservico"]/div/div/div[2]/div[6]/div/button').click()
-    time.sleep(10)
-
-    #Prefeitura Municipal de Campina Grande
-    driver.find_element(By.XPATH, '//*[@id="folha"]/option[3]').click()
-    #Gera relatório
-    driver.find_element(By.XPATH,'//*[@id="frmservico"]/div/div/div[2]/div[6]/div/button').click()
-    time.sleep(10)
-
-    """
-    #Começa o login na Processadora do Piauí
-    driver.get(Proc_PIAUI)
-    #assert "ConsigFácil - Campina Grande" in driver.title
-    User_ConsigFacil = driver.find_element (By.ID, "usuario")
-    User_ConsigFacil.clear()
-    User_ConsigFacil.send_keys("ConsigFacil_Username_Values")
-    Psw_ConsigFacil = driver.find_element (By.ID, "senha")
-    Psw_ConsigFacil.clear()
-    Psw_ConsigFacil.send_keys("ConsigFacil_Psw_Value")
-    ConsigFacil_CaptchaResolver = input("Digite o Captcha: ")
-    ConsigFacilCaptcha = driver.find_element(By.ID, "captcha")
-    ConsigFacilCaptcha.send_keys(ConsigFacil_CaptchaResolver)
-    Psw_ConsigFacil.send_keys(Keys.RETURN)
-    time.sleep(1) 
-    driver.find_element(By.XPATH, '//*[@id="staticBackdrop"]/div/div/div[3]/button[1]').click()
-    """
-
-    #Começa o login na Processadora de Porto Velho
-    driver.get(Proc_PrefPortoVelho)
-    #assert "ConsigFácil - Campina Grande" in driver.title
-    User_ConsigFacil = driver.find_element (By.ID, "usuario")
-    User_ConsigFacil.clear()
-    User_ConsigFacil.send_keys(ConsigFacil_Username_Values)
-    Psw_ConsigFacil = driver.find_element (By.ID, "senha")
-    Psw_ConsigFacil.clear()
-    Psw_ConsigFacil.send_keys(ConsigFacil_Psw_Values)
-    ConsigFacil_CaptchaResolver = input("Digite o Captcha: ")
-    ConsigFacilCaptcha = driver.find_element(By.ID, "captcha")
-    ConsigFacilCaptcha.send_keys(ConsigFacil_CaptchaResolver)
-    Psw_ConsigFacil.send_keys(Keys.RETURN)
-    time.sleep(1) 
-
-    #Começa o login na Processadora da prefeitura de Recife
-    driver.get(Proc_PrefRecife)
-    #assert "ConsigFácil - Campina Grande" in driver.title
-    User_ConsigFacil = driver.find_element (By.ID, "usuario")
-    User_ConsigFacil.clear()
-    User_ConsigFacil.send_keys(ConsigFacil_Username_Values)
-    Psw_ConsigFacil = driver.find_element (By.ID, "senha")
-    Psw_ConsigFacil.clear()
-    Psw_ConsigFacil.send_keys(ConsigFacil_Psw_Values)
-    ConsigFacil_CaptchaResolver = input("Digite o Captcha: ")
-    ConsigFacilCaptcha = driver.find_element(By.ID, "captcha")
-    ConsigFacilCaptcha.send_keys(ConsigFacil_CaptchaResolver)
-    Psw_ConsigFacil.send_keys(Keys.RETURN)
-    time.sleep(1) 
+    time.sleep(3)
+    renomear_e_mover_arquivos(
+        pasta_origem= pasta_downloads,
+        pasta_destino= r"C:\Relatórios\ConsigFacil\Joao_Pessoa",
+        parametro_nome= "relatorio",
+        novo_nome_base= f"Prefeitura_João_Pessoa_ConsigFacil_{data_arquivo}"
+    )
 
     #Começa o login na Processadora da prefeitura de Campina Grande
     driver.get(Proc_PrefCampinaGrande)
-    #assert "ConsigFácil - Campina Grande" in driver.title
     User_ConsigFacil = driver.find_element (By.ID, "usuario")
     User_ConsigFacil.clear()
     User_ConsigFacil.send_keys(ConsigFacil_Username_Values)
@@ -1069,28 +982,316 @@ def Relatorios_ConsigFacil():
     ConsigFacilCaptcha.send_keys(ConsigFacil_CaptchaResolver)
     Psw_ConsigFacil.send_keys(Keys.RETURN)
     time.sleep(1) 
-
+    driver.find_element(By.XPATH, "/html/body/div[2]/div[2]/div/div/div[1]/button").click()
+    #SELECIONA A ABA RELATÓRIO
+    driver.find_element(By.XPATH,'//*[@id="sidebar"]/ul/div[1]/div[2]/div/div/div/li[6]/a').click()
+    time.sleep(2)
+    driver.find_element(By.XPATH, '/html/body/div[1]/ul/div[1]/div[2]/div/div/div/li[6]/ul/li[2]/a').click() #SELECIONA O TIPO DE RELATORIO
+    time.sleep(1)
+    driver.find_element(By.XPATH,"/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/form/table[2]/tbody/tr[5]/td[2]/div/select").click()
+    time.sleep(2)
+    #Seleciona tipo de folha
+    driver.find_element(By.XPATH, "/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/form/table[2]/tbody/tr[4]/td[2]/select").click()
+    driver.find_element(By.XPATH, "/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/form/table[2]/tbody/tr[4]/td[2]/select/option[3]").click()
+    #Seleciona data folha
+    driver.find_element(By.XPATH,"/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/form/table[2]/tbody/tr[5]/td[2]/div/select").click()
+    driver.find_element(By.XPATH, "/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/form/table[2]/tbody/tr[5]/td[2]/div/select/option[2]").click() #Mudar para Mês referente do Relatório (Atualmente "Janeiro 2025")
+    time.sleep(2)
+    #Seleciona OrderBy Data
+    driver.find_element(By.XPATH,"/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/form/table[2]/tbody/tr[9]/td[2]/select").click()
+    Selec_Order_By = driver.find_element(By.XPATH,"/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/form/table[2]/tbody/tr[9]/td[2]/select")
+    Selec_Order_By.send_keys(Seta_Baixo)
+    Selec_Order_By.send_keys(Enter)    
+    time.sleep(1)
+    driver.execute_script ("document.body.style.zoom='75%'")
+    #Seleciona Tipo de arquivo
+    driver.find_element(By.XPATH, "/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/form/table[2]/tbody/tr[12]/td[2]/select").click()
+    Selec_CSV_arquivo = driver.find_element(By.XPATH,"/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/form/table[2]/tbody/tr[12]/td[2]/select")
+    Selec_CSV_arquivo.send_keys(Seta_Baixo)
+    Selec_CSV_arquivo.send_keys(Enter)
+    time.sleep(2)
+    driver.find_element(By.XPATH, "/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/form/table[2]/tbody/tr[13]/td/p/input").click()
+    driver.execute_script ("document.body.style.zoom='100%'")
+    time.sleep(3)
+    renomear_e_mover_arquivos(
+        pasta_origem= pasta_downloads,
+        pasta_destino= r"C:\Relatórios\ConsigFacil\Prefeitura_Campina_Grande",
+        parametro_nome= "relatorio",
+        novo_nome_base= f"Prefeitura_Campina_Grande_ConsigFacil_{data_arquivo}"
+    )
+    
+    #Começa o login na processadora da IPSEM de Campina Grande
+    driver.get(Proc_IPSEM_CampinaGrande)
+    User_ConsigFacil = driver.find_element (By.ID, "usuario")
+    User_ConsigFacil.clear()
+    User_ConsigFacil.send_keys(ConsigFacil_Username_Values)
+    Psw_ConsigFacil = driver.find_element (By.ID, "senha")
+    Psw_ConsigFacil.clear()
+    Psw_ConsigFacil.send_keys(ConsigFacil_Psw_Values)
+    ConsigFacil_CaptchaResolver = input("Digite o Captcha: ")
+    ConsigFacilCaptcha = driver.find_element(By.ID, "captcha")
+    ConsigFacilCaptcha.send_keys(ConsigFacil_CaptchaResolver)
+    Psw_ConsigFacil.send_keys(Keys.RETURN)
+    time.sleep(1) 
+    #Fecha Janela de novidades
+    driver.find_element(By.XPATH,'//*[@id="modalExibeBanners"]/div/div/div[1]/button').click()
+    time.sleep(1)
+    #SELECIONA A ABA RELATÓRIO
+    driver.find_element(By.XPATH,'//*[@id="sidebar"]/ul/div[1]/div[2]/div/div/div/li[6]/a').click()
+    time.sleep(2)
+    driver.find_element(By.XPATH, '/html/body/div[1]/ul/div[1]/div[2]/div/div/div/li[6]/ul/li[2]/a').click() #SELECIONA O TIPO DE RELATORIO
+    time.sleep(1)
+    driver.find_element(By.XPATH,"/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/form/table[2]/tbody/tr[5]/td[2]/div/select").click()
+    time.sleep(2)
+    #Seleciona tipo de folha
+    driver.find_element(By.XPATH, "/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/form/table[2]/tbody/tr[4]/td[2]/select").click()
+    driver.find_element(By.XPATH, "/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/form/table[2]/tbody/tr[4]/td[2]/select/option[2]").click()
+    #Seleciona data folha
+    driver.find_element(By.XPATH,"/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/form/table[2]/tbody/tr[5]/td[2]/div/select").click()
+    driver.find_element(By.XPATH, "/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/form/table[2]/tbody/tr[5]/td[2]/div/select/option[2]").click() #Mudar para Mês referente do Relatório (Atualmente "Janeiro 2025")
+    time.sleep(2)
+    #Seleciona OrderBy Data
+    driver.find_element(By.XPATH,"/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/form/table[2]/tbody/tr[9]/td[2]/select").click()
+    Selec_Order_By = driver.find_element(By.XPATH,"/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/form/table[2]/tbody/tr[9]/td[2]/select")
+    Selec_Order_By.send_keys(Seta_Baixo)
+    Selec_Order_By.send_keys(Enter)    
+    time.sleep(1)
+    driver.execute_script ("document.body.style.zoom='75%'")
+    #Seleciona Tipo de arquivo
+    driver.find_element(By.XPATH, "/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/form/table[2]/tbody/tr[12]/td[2]/select").click()
+    driver.find_element(By.XPATH,"/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/form/table[2]/tbody/tr[12]/td[2]/select/option[2]").click()
+    time.sleep(2)
+    driver.find_element(By.XPATH, "/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/form/table[2]/tbody/tr[13]/td/p/input").click()
+    driver.execute_script ("document.body.style.zoom='100%'")
+    time.sleep(3)
+    renomear_e_mover_arquivos(
+        pasta_origem= pasta_downloads,
+        pasta_destino= r"C:\Relatórios\ConsigFacil\IPSEM_Campina_Grande",
+        parametro_nome= "relatorio",
+        novo_nome_base= f"IPSEM_Campina_Grande_ConsigFacil_{data_arquivo}"
+    )
     time.sleep(20) #Tempo para abrir a conexão Forticlient
 
 #Logins na NEOCONSIG (NECESSÁRIO CONEXÃO FORTICLIENT)---------------------------------------------------------
+
 def Relatorios_NeoConsig():
-    #Começa o login na Processadora de Alagoas
-    driver.get(Proc_Alagoas)
-    Find_DropBar = driver.find_element(By.XPATH, "/html/body/header/nav/div/div[2]/ul/li/a/button").click()
-    Click_DropBar = driver.find_element(By.XPATH, "/html/body/header/nav/div/div[2]/ul/li/ul/li[3]/a").click()
-    #Select_Acess_DropBar = driver.find_element(By.XPATH, "/html/body/header/nav/div/div[1]/ul/li[6]/ul/li[3]/a").click()
-    #Acess_DropBar = driver.find_element(By.XPATH, "/html/body/header/nav/div/div[4]/form/input[1]")
-    #Acess_DropBar.send_keys("Login_NeoConsig")
-    # time.sleep(3)
+    
     #Começa o login na Processadora de Goias
     driver.get(Proc_GovGoias)
-    #Começa o login na Processadora de Guarulhos
-    driver.get(Proc_Guarulhos)
+    driver.find_element(By.XPATH, "/html/body/header/nav/div/div[2]/ul/li/a/button").click()
+    driver.find_element(By.XPATH, "/html/body/header/nav/div/div[2]/ul/li/ul/li[3]/a").click()
+    time.sleep(2)
+    Login_NeoConsig = driver.find_element(By.XPATH, "/html/body/header/nav/div/div[4]/form/input[1]")
+    Login_NeoConsig.send_keys(NeoConsig_Username_Values)
+    driver.find_element(By.XPATH,"/html/body/header/nav/div/div[4]/form/div/button").click()
+    time.sleep(10)
+    driver.find_element(By.XPATH, "/html/body/div[3]/div/div[2]/div/div/div/form/div[1]/div/a/span[1]").click()
+    Selec_Conv = driver.find_element(By.XPATH, "/html/body/div[7]/div/input")
+    Selec_Conv.send_keys("Goi")
+    Selec_Conv.send_keys(Enter)
+    driver.find_element(By.XPATH, "/html/body/div[3]/div/div[2]/div/div/div/form/div[2]/select").click()
+    Selec_acessNC = driver.find_element(By.XPATH, "/html/body/div[3]/div/div[2]/div/div/div/form/div[2]/select")
+    Selec_acessNC.send_keys(Seta_Baixo)
+    Selec_acessNC.send_keys(Enter)
+    NeoConsig_Captcha_Resolver = input ("Digite o Captcha: ")
+    NeoConsig_Captcha = driver.find_element(By.XPATH, "/html/body/div[3]/div/div[2]/div/div/div/form/div[5]/div[3]/input")
+    NeoConsig_Captcha.send_keys(NeoConsig_Captcha_Resolver)
+    driver.find_element(By.XPATH, "/html/body/div[3]/div/div[2]/div/div/div/form/div[6]/a").click()
+    time.sleep(5)
+    driver.find_element(By.XPATH, "/html/body/div[4]/div/div/div[1]/p/a").click()
+    time.sleep(10) # Tempo pra colocar a senha no teclado digital
+    time.sleep(3)
+    #Seleciona Aba Relatórios
+    driver.find_element(By.XPATH, "/html/body/div[5]/div[1]/div/ul/li[5]/a").click()
+    time.sleep(3)
+    driver.find_element(By.XPATH, "/html/body/div[5]/div[1]/div/ul/li[5]/ul/li/a").click()
+    time.sleep(2)
+    driver.find_element(By.XPATH, "/html/body/div[5]/div[1]/div/ul/li[5]/ul/li/ul/li/a").click()
+    time.sleep(5)
+    #Selecionando Mês 
+    driver.find_element(By.XPATH,"/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[1]/div[3]/div[1]/div/div/a/span[1]").click()
+    if Dia_atual >= 2:
+        Selec_Mes_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen1_search"]')
+        Selec_Mes_Desejado.send_keys(Mes_Atual) #Default Mes_Atual
+        Selec_Mes_Desejado.send_keys(Enter)
+    else:
+        Selec_Mes_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen1_search"]')
+        Selec_Mes_Desejado.send_keys(mes_anterior) #Default mes_anterior
+        Selec_Mes_Desejado.send_keys(Enter)
+
+    #Seleciona ANO
+    driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[1]/div[3]/div[2]/div/div/a/span[1]").click
+        
+    if InfoData == 'janeiro' and Dia_atual < 2:
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[1]/div[3]/div[2]/div/div/a").click()
+        Selec_Ano_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen2_search"]')
+        Selec_Ano_Desejado.send_keys(Ano_Anterior) # default Ano_anterior
+        Selec_Ano_Desejado.send_keys(Enter)
+    else:
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[1]/div[3]/div[2]/div/div/a").click()
+        Selec_Ano_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen2_search"]')
+        Selec_Ano_Desejado.send_keys(Ano_Atual) #Default Ano_Atual
+        Selec_Ano_Desejado.send_keys(Enter)
+    time.sleep(2)
+    time.sleep(4)
+    driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[1]/div[3]/div[3]/div/div/div/a[2]").click()
+    time.sleep(15)
+    renomear_e_mover_arquivos(
+    pasta_origem= pasta_downloads,
+    pasta_destino= r"C:\Relatórios\NeoConsig\Goias",
+    parametro_nome= "operacaoEmprestimo",
+    novo_nome_base= f"Goias_NeoConsig_{data_arquivo}"
+    )
+    time.sleep(5)
+    
+    #Começa o login na Processadora de Alagoas
+    driver.get(Proc_Alagoas)
+    driver.find_element(By.XPATH, "/html/body/header/nav/div/div[2]/ul/li/a/button").click()
+    driver.find_element(By.XPATH, "/html/body/header/nav/div/div[2]/ul/li/ul/li[3]/a").click()
+    time.sleep(2)
+    Login_NeoConsig = driver.find_element(By.XPATH, "/html/body/header/nav/div/div[4]/form/input[1]")
+    Login_NeoConsig.send_keys(NeoConsig_Username_Values)
+    time.sleep(4)
+    driver.find_element(By.XPATH,"/html/body/header/nav/div/div[4]/form/div/button").click()
+    time.sleep(10)
+    driver.find_element(By.XPATH, "/html/body/div[3]/div/div[2]/div/div/div/form/div[1]/div/a/span[1]").click()
+    Selec_Conv = driver.find_element(By.XPATH, "/html/body/div[7]/div/input")
+    Selec_Conv.send_keys("alag")
+    Selec_Conv.send_keys(Enter)
+    driver.find_element(By.XPATH, "/html/body/div[3]/div/div[2]/div/div/div/form/div[2]/select").click()
+    Selec_acessNC = driver.find_element(By.XPATH, "/html/body/div[3]/div/div[2]/div/div/div/form/div[2]/select")
+    Selec_acessNC.send_keys(Seta_Baixo)
+    Selec_acessNC.send_keys(Enter)
+    NeoConsig_Captcha_Resolver = input ("Digite o Captcha: ")
+    NeoConsig_Captcha = driver.find_element(By.XPATH, "/html/body/div[3]/div/div[2]/div/div/div/form/div[5]/div[3]/input")
+    NeoConsig_Captcha.send_keys(NeoConsig_Captcha_Resolver)
+    driver.find_element(By.XPATH, "/html/body/div[3]/div/div[2]/div/div/div/form/div[6]/a").click()
+    time.sleep(5)
+    driver.find_element(By.XPATH, "/html/body/div[4]/div/div/div[1]/p/a").click()
+    time.sleep(10) # Tempo pra colocar a senha no teclado digital
+
+    time.sleep(5)
+    driver.find_element(By.XPATH, "/html/body/div[4]/div/div/div[1]/p/a").click()
+    time.sleep(10) # Tempo pra colocar a senha no teclado digital
+    time.sleep(3)
+    #Seleciona Aba Relatórios
+    driver.find_element(By.XPATH, "/html/body/div[5]/div[1]/div/ul/li[5]/a").click()
+    time.sleep(3)
+    driver.find_element(By.XPATH, "/html/body/div[5]/div[1]/div/ul/li[5]/ul/li/a").click()
+    time.sleep(2)
+    driver.find_element(By.XPATH, "/html/body/div[5]/div[1]/div/ul/li[5]/ul/li/ul/li/a").click()
+    time.sleep(5)
+    #Selecionando Mês 
+    driver.find_element(By.XPATH,"/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[1]/div[3]/div[1]/div/div/a/span[1]").click()
+    if Dia_atual >= 2:
+        Selec_Mes_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen1_search"]')
+        Selec_Mes_Desejado.send_keys(Mes_Atual) #Default Mes_Atual
+        Selec_Mes_Desejado.send_keys(Enter)
+    else:
+        Selec_Mes_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen1_search"]')
+        Selec_Mes_Desejado.send_keys(mes_anterior) #Default mes_anterior
+        Selec_Mes_Desejado.send_keys(Enter)
+
+    #Seleciona ANO
+    driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[1]/div[3]/div[2]/div/div/a/span[1]").click
+        
+    if InfoData == 'janeiro' and Dia_atual < 2:
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[1]/div[3]/div[2]/div/div/a").click()
+        Selec_Ano_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen2_search"]')
+        Selec_Ano_Desejado.send_keys(Ano_Anterior) # default Ano_anterior
+        Selec_Ano_Desejado.send_keys(Enter)
+    else:
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[1]/div[3]/div[2]/div/div/a").click()
+        Selec_Ano_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen2_search"]')
+        Selec_Ano_Desejado.send_keys(Ano_Atual) #Default Ano_Atual
+        Selec_Ano_Desejado.send_keys(Enter)
+    time.sleep(2)
+    time.sleep(4)
+    driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[1]/div[3]/div[3]/div/div/div/a[2]").click()
+    time.sleep(15)
+    renomear_e_mover_arquivos(
+    pasta_origem= pasta_downloads,
+    pasta_destino= r"C:\Relatórios\NeoConsig\Alagoas",
+    parametro_nome= "operacaoEmprestimo",
+    novo_nome_base= f"Alagoas_NeoConsig_{data_arquivo}"
+    )
+    time.sleep(5)
+
     #Começa o login na Processadora de Sorocaba
     driver.get(Proc_Sorocaba)
-    
-    #Logins Consig (Necessário Conexão FortiClient)
-    
+    driver.get(Proc_Alagoas)
+    driver.find_element(By.XPATH, "/html/body/header/nav/div/div[2]/ul/li/a/button").click()
+    driver.find_element(By.XPATH, "/html/body/header/nav/div/div[2]/ul/li/ul/li[3]/a").click()
+    time.sleep(2)
+    Login_NeoConsig = driver.find_element(By.XPATH, "/html/body/header/nav/div/div[4]/form/input[1]")
+    Login_NeoConsig.send_keys(NeoConsig_Username_Values)
+    time.sleep(4)
+    driver.find_element(By.XPATH,"/html/body/header/nav/div/div[4]/form/div/button").click()
+    time.sleep(10)
+    driver.find_element(By.XPATH, "/html/body/div[3]/div/div[2]/div/div/div/form/div[1]/div/a/span[1]").click()
+    Selec_Conv = driver.find_element(By.XPATH, "/html/body/div[7]/div/input")
+    Selec_Conv.send_keys("soroc")
+    Selec_Conv.send_keys(Enter)
+    driver.find_element(By.XPATH, "/html/body/div[3]/div/div[2]/div/div/div/form/div[2]/select").click()
+    Selec_acessNC = driver.find_element(By.XPATH, "/html/body/div[3]/div/div[2]/div/div/div/form/div[2]/select")
+    Selec_acessNC.send_keys(Seta_Baixo)
+    Selec_acessNC.send_keys(Enter)
+    NeoConsig_Captcha_Resolver = input ("Digite o Captcha: ")
+    NeoConsig_Captcha = driver.find_element(By.XPATH, "/html/body/div[3]/div/div[2]/div/div/div/form/div[5]/div[3]/input")
+    NeoConsig_Captcha.send_keys(NeoConsig_Captcha_Resolver)
+    driver.find_element(By.XPATH, "/html/body/div[3]/div/div[2]/div/div/div/form/div[6]/a").click()
+    time.sleep(5)
+    driver.find_element(By.XPATH, "/html/body/div[4]/div/div/div[1]/p/a").click()
+    time.sleep(10) # Tempo pra colocar a senha no teclado digital
+
+    time.sleep(5)
+    driver.find_element(By.XPATH, "/html/body/div[4]/div/div/div[1]/p/a").click()
+    time.sleep(10) # Tempo pra colocar a senha no teclado digital
+    time.sleep(3)
+    #Seleciona Aba Relatórios
+    driver.find_element(By.XPATH, "/html/body/div[5]/div[1]/div/ul/li[5]/a").click()
+    time.sleep(3)
+    driver.find_element(By.XPATH, "/html/body/div[5]/div[1]/div/ul/li[5]/ul/li/a").click()
+    time.sleep(2)
+    driver.find_element(By.XPATH, "/html/body/div[5]/div[1]/div/ul/li[5]/ul/li/ul/li/a").click()
+    time.sleep(5)
+    #Selecionando Mês 
+    driver.find_element(By.XPATH,"/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[1]/div[3]/div[1]/div/div/a/span[1]").click()
+    if Dia_atual >= 2:
+        Selec_Mes_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen1_search"]')
+        Selec_Mes_Desejado.send_keys(Mes_Atual) #Default Mes_Atual
+        Selec_Mes_Desejado.send_keys(Enter)
+    else:
+        Selec_Mes_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen1_search"]')
+        Selec_Mes_Desejado.send_keys(mes_anterior) #Default mes_anterior
+        Selec_Mes_Desejado.send_keys(Enter)
+
+    #Seleciona ANO
+    driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[1]/div[3]/div[2]/div/div/a/span[1]").click
+        
+    if InfoData == 'janeiro' and Dia_atual < 2:
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[1]/div[3]/div[2]/div/div/a").click()
+        Selec_Ano_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen2_search"]')
+        Selec_Ano_Desejado.send_keys(Ano_Anterior) # default Ano_anterior
+        Selec_Ano_Desejado.send_keys(Enter)
+    else:
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[1]/div[3]/div[2]/div/div/a").click()
+        Selec_Ano_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen2_search"]')
+        Selec_Ano_Desejado.send_keys(Ano_Atual) #Default Ano_Atual
+        Selec_Ano_Desejado.send_keys(Enter)
+    time.sleep(2)
+    time.sleep(4)
+    driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[1]/div[3]/div[3]/div/div/div/a[2]").click()
+    time.sleep(15)
+    renomear_e_mover_arquivos(
+    pasta_origem= pasta_downloads,
+    pasta_destino= r"C:\Relatórios\NeoConsig\Sorocaba",
+    parametro_nome= "operacaoEmprestimo",
+    novo_nome_base= f"Sorocaba_NeoConsig_{data_arquivo}"
+    )
+    time.sleep(5)
+#Logins Consig (Necessário Conexão FortiClient)
+
 def Relatorios_ConsigPR():
     #Login Processadora Paraná 
     driver.get(Proc_Parana)
@@ -1113,11 +1314,63 @@ def Relatorios_ConsigPR():
     Consig_Captcha.send_keys(ConsigCaptcha_Resolver)
     driver.find_element(By.XPATH, '//*[@id="servidor-form"]/div[7]/a').click()
     driver.find_element(By.XPATH, "/html/body/div[4]/div/div/div[1]/p/a").click
-    time.sleep(20) #Tempo para fechar a conexão Forticlient      
-    
+    time.sleep(15) #Tempo pra colocar a senha no teclado digital
+    #Seleciona Aba Relatórios
+    driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[1]/div/button").click()
+    time.sleep(2)
+    driver.find_element(By.XPATH, "/html/body/div[5]/div[1]/div/ul/li[4]/a").click()
+    time.sleep(2)
+    driver.find_element(By.XPATH, "/html/body/div[5]/div[1]/div/ul/li[4]/ul/li/a").click()
+    time.sleep(2)
+    driver.find_element(By.XPATH, "/html/body/div[5]/div[1]/div/ul/li[4]/ul/li/ul/li[4]/a").click()
+
+    time.sleep(3)
+    #Seleciona Mês  
+    driver.find_element(By.XPATH,"/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[1]/div[3]/div[1]/div/div/a/span[1]").click()
+    if Dia_atual >= 2:
+            Selec_Mes_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen1_search"]')
+            Selec_Mes_Desejado.send_keys(Mes_Atual) #Default Mes_Atual
+            Selec_Mes_Desejado.send_keys(Enter)
+    else:
+            Selec_Mes_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen1_search"]')
+            Selec_Mes_Desejado.send_keys(mes_anterior) #Default mes_anterior
+            Selec_Mes_Desejado.send_keys(Enter)
+    time.sleep(2)
+
+    #Seleciona ANO
+    driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[1]/div[3]/div[2]/div/div/a/span[1]").click
+        
+    if InfoData == 'janeiro' and Dia_atual < 2:
+            driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[1]/div[3]/div[2]/div/div/a").click()
+            Selec_Ano_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen2_search"]')
+            Selec_Ano_Desejado.send_keys(Ano_Anterior) # default Ano_anterior
+            Selec_Ano_Desejado.send_keys(Enter)
+    else:
+            driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[1]/div[3]/div[2]/div/div/a").click()
+            Selec_Ano_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen2_search"]')
+            Selec_Ano_Desejado.send_keys(Ano_Atual) #Default Ano_Atual
+            Selec_Ano_Desejado.send_keys(Enter)
+    time.sleep(2)
+
+    #Seleciona Tipo de arquivo
+    driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[1]/div[3]/div[3]/div/div/div/a[2]").click()
+    time.sleep(10)
+         
+    renomear_e_mover_arquivos(
+        pasta_origem= pasta_downloads,
+        pasta_destino= r"C:\Relatórios\NeoConsig\Parana",
+        parametro_nome= "operacaoEmprestimo",
+        novo_nome_base= f"Parana_NeoConsig_{data_arquivo}"
+    )
     #FECHA CONEXÃO FORTICLIENT
+    print("Fechar conexão com a VPN")
+    time.sleep(20)
+
+
+#Logins na NeoConsig (Sem necessidade de conexão Forticlient)---------------------------------------------------------
+
 def Relatorios_ProcRJ():
-        #Coeça o login na Processadora do Rio De Janeiro
+        #Começa o login na Processadora do Rio De Janeiro
         driver.get(Proc_RJ)
         driver.find_element(By.ID, "btn-acessar-sistema").click()
         Click_Acess = driver.find_element(By.ID, "tipo_acesso")
@@ -1135,390 +1388,81 @@ def Relatorios_ProcRJ():
         time.sleep(10)#TEMPO PARA COLOCAR A SENHA NO TECLADO DIGITAL
         
         #Abre a aba de relatório
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[1]/div/ul/li[5]/a/span[1]").click()
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[1]/div/ul/li[5]/ul/li/a").click()
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[1]/div/ul/li[4]/a/span[1]").click()
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[1]/div/ul/li[4]/ul/li/a").click()
+        time.sleep(2)
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[1]/div/ul/li[4]/ul/li/ul/li/a").click()
+        driver.get("https://rioconsig.com.br/rioconsig/credenciado/operacao/listar")
+        time.sleep(3)
+        
+        #Selecionando Mês 
+        driver.find_element(By.XPATH,"/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[1]/div[3]/div[1]/div/div/a/span[1]").click()
+        if Dia_atual >= 2:
+            Selec_Mes_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen1_search"]')
+            Selec_Mes_Desejado.send_keys(Mes_Atual) #Default Mes_Atual
+            Selec_Mes_Desejado.send_keys(Enter)
+        else:
+            Selec_Mes_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen1_search"]')
+            Selec_Mes_Desejado.send_keys(mes_anterior) #Default mes_anterior
+            Selec_Mes_Desejado.send_keys(Enter)
+
+        #Seleciona ANO
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[1]/div[3]/div[2]/div/div/a/span[1]").click
+        
+        if InfoData == 'janeiro' and Dia_atual < 2:
+            driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[1]/div[3]/div[2]/div/div/a").click()
+            Selec_Ano_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen2_search"]')
+            Selec_Ano_Desejado.send_keys(Ano_Anterior) # default Ano_anterior
+            Selec_Ano_Desejado.send_keys(Enter)
+        else:
+            driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[1]/div[3]/div[2]/div/div/a").click()
+            Selec_Ano_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen2_search"]')
+            Selec_Ano_Desejado.send_keys(Ano_Atual) #Default Ano_Atual
+            Selec_Ano_Desejado.send_keys(Enter)
         time.sleep(2)
 
-        #Seleciona o Produto BENEFICIO SAQUE para Relatório
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[1]/div/div/a/span[1]").click() 
-        Selec_Produto_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen1_search"]')
-        Selec_Produto_Desejado.send_keys("BENEFICIO SAQUE")
-        Selec_Produto_Desejado.send_keys(Enter)
-
-        #Seleciona órgão 
-
-        #FUNDAÇÃO PARQUES E JARDINS
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[2]").click()
-
-        #Selecionando Mês 
-        driver.find_element(By.XPATH,"/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[1]/div/div/a/span[1]").click()
-        Selec_Mes_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen3_search"]')
-        Selec_Mes_Desejado.send_keys(mes_anterior)
-        Selec_Mes_Desejado.send_keys(Enter)
-
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[1]/div/select/option[12]").click
-
-        #Seleciona ANO
-        if InfoData == 'janeiro':
-            driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[2]/div/div/a/span[1]").click()
-            Selec_Ano_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen5_search"]')
-            Selec_Ano_Desejado.send_keys(Ano_Anterior)
-            Selec_Ano_Desejado.send_keys(Enter)
-        else:
-            driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[2]/div/div/a/span[1]").click()
-            Selec_Ano_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen5_search"]')
-            Selec_Ano_Desejado.send_keys(Ano_Atual)
-            Selec_Ano_Desejado.send_keys(Enter)
-
         #Seleciona Arquivo CSV Export
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
-        time.sleep(10)
+        driver.find_element(By.XPATH, '//*[@id="content"]/div[2]/div/div/div[1]/div[3]/div[3]/div/div/div/a[2]').click()
+        time.sleep(15)
+         
+        renomear_e_mover_arquivos(
+        pasta_origem= pasta_downloads,
+        pasta_destino= r"C:\Relatórios\NeoConsig\Rio_De_Janeiro",
+        parametro_nome= "operacaoEmprestimo",
+        novo_nome_base= f"Prefeitura_Rio_de_Janeiro_NeoConsig_{data_arquivo}"
+    )
+        #nome do arquivo operacaoEmprestimo.csv
+
+#Login BPO e extração de relatório (Se Necessário)---------------------------------------------------------
+
+def Relatorios_BPO():
+    driver.get(BPO)
+    User_BPO = driver.find_element(By.XPATH, "/html/body/div/div/div[2]/form/div[3]/input")
+    User_BPO.send_keys(Login_BPO)
+    Psw_BPO = driver.find_element(By.XPATH, "/html/body/div/div/div[2]/form/div[4]/input")
+    Psw_BPO.send_keys(Senha_BPO)
+    driver.find_element(By.XPATH, "/html/body/div/div/div[2]/form/input").click()
+    time.sleep(2)
+    driver.find_element(By.XPATH, "/html/body/form/div[3]/div/div[2]/div/div/div[2]/ul/li[4]/a").click()
+    driver.find_element(By.XPATH, "/html/body/form/div[3]/div/div[2]/div/div/div[2]/ul/li[4]/div/a[1]").click()
+    driver.find_element(By.XPATH, "/html/body/form/div[3]/div/div[3]/div/div[1]/div[3]/div/label/table/tbody/tr/td[3]/input").click()
+    driver.find_element(By.XPATH, "/html/body/form/div[3]/div/div[3]/div/div[1]/div[5]/div/div/select").click()
 
-        #Seleciona órgão 
-        #PENSIONISTAS DO MUNICIPIO DO RIO DE JANEIRO RJ
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[3]").click()
-
-        #Seleciona Arquivo CSV Export
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
-        time.sleep(10)
-
-        #Seleciona órgão 
-        #EMPRESA MUNICIPAL DE MULTIMEIOS LTDA
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[4]").click()
-
-        #Seleciona Arquivo CSV Export
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
-        time.sleep(10)
-
-        #Seleciona órgão 
-        #GUARDA MUNICIPAL DO RIO DE JANEIRO
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[5]").click()
-
-        #Seleciona Arquivo CSV Export
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
-        time.sleep(10)
-
-        #Seleciona órgão 
-        #EMPRESA PUBLICA DE SAUDE DO RIO DE JANEIRO
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[6]").click()
-
-        #Seleciona Arquivo CSV Export
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
-        time.sleep(10)
-
-        #Seleciona órgão 
-        #INSTITUTO DE PREVIDENCIA E ASSISTENCIA DO M.R.J
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[7]").click()
-
-        #Seleciona Arquivo CSV Export
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
-        time.sleep(10)
-
-        #Seleciona órgão 
-        #Prefeitura RJ
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[8]").click()
-
-        #Seleciona Arquivo CSV Export
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
-        time.sleep(10)
-
-        #Seleciona órgão 
-        #FUNDO MESPECIAL DE PREVIDENCIA DO MUNICIPIO DO RJ
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[9]").click()
-
-        #Seleciona Arquivo CSV Export
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
-        time.sleep(10)
-
-        #Seleciona o Produto EMPRÉSTIMO para Relatório
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[1]/div/div/a/span[1]").click() 
-        Selec_Produto_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen1_search"]')
-        Selec_Produto_Desejado.send_keys("EMPRÉSTIMO")
-        Selec_Produto_Desejado.send_keys(Enter)
-
-        #Seleciona órgão 
-
-        #FUNDAÇÃO PARQUES E JARDINS
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[2]").click()
-
-        #Selecionando Mês 
-        driver.find_element(By.XPATH,"/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[1]/div/div/a/span[1]").click()
-        Selec_Mes_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen3_search"]')
-        Selec_Mes_Desejado.send_keys(mes_anterior)
-        Selec_Mes_Desejado.send_keys(Enter)
-
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[1]/div/select/option[12]").click
-
-        #Seleciona ANO
-        if InfoData == 'janeiro':
-            driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[2]/div/div/a/span[1]").click()
-            Selec_Ano_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen5_search"]')
-            Selec_Ano_Desejado.send_keys(Ano_Anterior)
-            Selec_Ano_Desejado.send_keys(Enter)
-        else:
-            driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[2]/div/div/a/span[1]").click()
-            Selec_Ano_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen5_search"]')
-            Selec_Ano_Desejado.send_keys(Ano_Atual)
-            Selec_Ano_Desejado.send_keys(Enter)
-
-        #Seleciona Arquivo CSV Export
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
-        time.sleep(10)
-
-        #Seleciona órgão 
-        #PENSIONISTAS DO MUNICIPIO DO RIO DE JANEIRO RJ
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[3]").click()
-
-        #Seleciona Arquivo CSV Export
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
-        time.sleep(10)
-
-        #Seleciona órgão 
-        #EMPRESA MUNICIPAL DE MULTIMEIOS LTDA
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[4]").click()
-
-        #Seleciona Arquivo CSV Export
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
-        time.sleep(10)
-
-        #Seleciona órgão 
-        #GUARDA MUNICIPAL DO RIO DE JANEIRO
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[5]").click()
-
-        #Seleciona Arquivo CSV Export
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
-        time.sleep(10)
-
-        #Seleciona órgão 
-        #EMPRESA PUBLICA DE SAUDE DO RIO DE JANEIRO
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[6]").click()
-
-        #Seleciona Arquivo CSV Export
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
-        time.sleep(10)
-
-        #Seleciona órgão 
-        #INSTITUTO DE PREVIDENCIA E ASSISTENCIA DO M.R.J
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[7]").click()
-
-        #Seleciona Arquivo CSV Export
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
-        time.sleep(10)
-
-        #Seleciona órgão 
-        #Prefeitura RJ
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[8]").click()
-
-        #Seleciona Arquivo CSV Export
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
-        time.sleep(10)
-
-        #Seleciona órgão 
-        #FUNDO MESPECIAL DE PREVIDENCIA DO MUNICIPIO DO RJ
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[9]").click()
-
-        #Seleciona Arquivo CSV Export
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
-        time.sleep(10)
-
-        #Seleciona o Produto CARTÃO DE CRÉDITO para Relatório
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[1]/div/div/a/span[1]").click() 
-        Selec_Produto_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen1_search"]')
-        Selec_Produto_Desejado.send_keys("CARTÃO DE CRÉDITO")
-        Selec_Produto_Desejado.send_keys(Enter)
-
-        #Seleciona órgão 
-
-        #FUNDAÇÃO PARQUES E JARDINS
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[2]").click()
-
-        #Selecionando Mês 
-        driver.find_element(By.XPATH,"/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[1]/div/div/a/span[1]").click()
-        Selec_Mes_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen3_search"]')
-        Selec_Mes_Desejado.send_keys(mes_anterior)
-        Selec_Mes_Desejado.send_keys(Enter)
-
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[1]/div/select/option[12]").click
-
-        #SELECIONA ANO
-        if InfoData == 'janeiro':
-            driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[2]/div/div/a/span[1]").click()
-            Selec_Ano_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen5_search"]')
-            Selec_Ano_Desejado.send_keys(Ano_Anterior)
-            Selec_Ano_Desejado.send_keys(Enter)
-        else:
-            driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[2]/div/div/a/span[1]").click()
-            Selec_Ano_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen5_search"]')
-            Selec_Ano_Desejado.send_keys(Ano_Atual)
-            Selec_Ano_Desejado.send_keys(Enter)
-
-        #Seleciona Arquivo CSV Export
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
-        time.sleep(10)
-
-        #Seleciona órgão 
-        #PENSIONISTAS DO MUNICIPIO DO RIO DE JANEIRO RJ
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[3]").click()
-
-        #Seleciona Arquivo CSV Export
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
-        time.sleep(10)
-
-        #Seleciona órgão 
-        #EMPRESA MUNICIPAL DE MULTIMEIOS LTDA
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[4]").click()
-
-        #Seleciona Arquivo CSV Export
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
-        time.sleep(10)
-
-        #Seleciona órgão 
-        #GUARDA MUNICIPAL DO RIO DE JANEIRO
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[5]").click()
-
-        #Seleciona Arquivo CSV Export
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
-        time.sleep(10)
-
-        #Seleciona órgão 
-        #EMPRESA PUBLICA DE SAUDE DO RIO DE JANEIRO
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[6]").click()
-
-        #Seleciona Arquivo CSV Export
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
-        time.sleep(10)
-
-        #Seleciona órgão 
-        #INSTITUTO DE PREVIDENCIA E ASSISTENCIA DO M.R.J
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[7]").click()
-
-        #Seleciona Arquivo CSV Export
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
-        time.sleep(10)
-
-        #Seleciona órgão 
-        #Prefeitura RJ
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[8]").click()
-
-        #Seleciona Arquivo CSV Export
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
-        time.sleep(10)
-
-        #Seleciona órgão 
-        #FUNDO MESPECIAL DE PREVIDENCIA DO MUNICIPIO DO RJ
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[9]").click()
-
-        #Seleciona Arquivo CSV Export
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
-        time.sleep(10)
-
-        #Seleciona o Produto BENEFICIO COMPRAS para Relatório
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[1]/div/div/a/span[1]").click() 
-        Selec_Produto_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen1_search"]') 
-        Selec_Produto_Desejado.send_keys("BENEFICIO COMPRAS")
-        Selec_Produto_Desejado.send_keys(Enter)
-
-        #Seleciona órgão 
-
-        #FUNDAÇÃO PARQUES E JARDINS
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[2]").click()
-
-        #Selecionando Mês 
-        driver.find_element(By.XPATH,"/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[1]/div/div/a/span[1]").click()
-        Selec_Mes_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen3_search"]')
-        Selec_Mes_Desejado.send_keys(mes_anterior)
-        Selec_Mes_Desejado.send_keys(Enter)
-
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[1]/div/select/option[12]").click
-
-        #Seleciona ANO
-        if InfoData == 'janeiro':
-            driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[2]/div/div/a/span[1]").click()
-            Selec_Ano_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen5_search"]')
-            Selec_Ano_Desejado.send_keys(Ano_Anterior)
-            Selec_Ano_Desejado.send_keys(Enter)
-        else:
-            driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[2]/div/div/a/span[1]").click()
-            Selec_Ano_Desejado = driver.find_element(By.XPATH, '//*[@id="s2id_autogen5_search"]')
-            Selec_Ano_Desejado.send_keys(Ano_Atual)
-            Selec_Ano_Desejado.send_keys(Enter)
-
-        #Seleciona Arquivo CSV Export
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
-        time.sleep(10)
-
-        #Seleciona órgão
-        #PENSIONISTAS DO MUNICIPIO DO RIO DE JANEIRO RJ
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[3]").click()
-
-        #Seleciona Arquivo CSV Export
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
-        time.sleep(10)
-
-        #Seleciona órgão 
-        #EMPRESA MUNICIPAL DE MULTIMEIOS LTDA
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[4]").click()
-
-        #Seleciona Arquivo CSV Export
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
-        time.sleep(10)
-
-        #Seleciona órgão 
-        #GUARDA MUNICIPAL DO RIO DE JANEIRO
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[5]").click()
-
-        #Seleciona Arquivo CSV Export
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
-        time.sleep(10)
-
-        #Seleciona órgão 
-        #EMPRESA PUBLICA DE SAUDE DO RIO DE JANEIRO
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[6]").click()
-
-        #Seleciona Arquivo CSV Export
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
-        time.sleep(10)
-
-        #Seleciona órgão 
-        #INSTITUTO DE PREVIDENCIA E ASSISTENCIA DO M.R.J
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[7]").click()
-
-        #Seleciona Arquivo CSV Export
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
-        time.sleep(10)
-
-        #Seleciona órgão 
-        #Prefeitura RJ
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[8]").click()
-
-        #Seleciona Arquivo CSV Export
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
-        time.sleep(10)
-
-        #Seleciona órgão 
-        #FUNDO MESPECIAL DE PREVIDENCIA DO MUNICIPIO DO RJ
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[3]/div/select/option[9]").click()
-
-        #Seleciona Arquivo CSV Export
-        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[3]/div[2]/div[4]/div/div/a[2]").click()
-        time.sleep(10)
 
 #------------------ Chama as funções para gerar relatórios --------------------------------
 
+teste_variaveis()
 
-#Relatorios_Zetra()
+Relatorios_Zetra()
 
+Relatorios_CIP() # 100% Funcional Relatório Definitivo
 
-#Relatorios_ConsigFacil() #João Pessoa e Campina grande Funcional 
-
-
-# Relatorios_CIP() # 100% Funcional Relatório Definitivo
-
+Relatorios_ConsigFacil() #João Pessoa e Campina grande Funcional 
 
 RodarProcsVPN = input("Digite 's' se deseja rodar as processadoras que necessitam de VPN ou 'n' para pular\n")
 
 if RodarProcsVPN == 's':
-    Relatorios_NeoConsig() # Precisa ser feito conectado a forticlient
+    Relatorios_NeoConsig() # Precisa ser feito conectado a forticlient 
     Relatorios_ConsigPR() # Precisa ser feito conectado a forticlient
 elif RodarProcsVPN =='n':
     print("Pulando para a processadora do Rio de Janeiro")
@@ -1531,3 +1475,5 @@ else:
     print("")
 
 Relatorios_ProcRJ() #100% Funcional Relatório Definitivo
+
+Relatorios_BPO()

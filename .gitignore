@@ -1,4 +1,4 @@
-/Mensagens_Debug.txt
-/Backup_Relatorio_RJ.py
-/move_arquivos_Backup.py
-/Renomeador_Arquivos_Backup.py
+/Logs/Mensagens_Debug.txt
+/Backups/BackupProcessadoras.py
+/Backups/move_arquivos_Backup.py
+/Backups/Renomeador_Arquivos_Backup.py

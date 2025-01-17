@@ -3,16 +3,15 @@ import time
 import psycopg2
 import locale
 import shutil
-import tkinter as tk
-from tkinter import scrolledtext
 from datetime import date, timedelta, datetime
 
 #Define valores datetime
-data_atual_postgres = date.today()
 data_atual = date.today()
+data_atual_postgres = data_atual.strftime('%Y-%m-%d')
 data_Pasta_Arquivo = data_atual.strftime('%d-%m-%Y')
 Data_e_HoraLOG = datetime.now()
 
+#Função para melhor formatação do TXT LOG de saida
 def Corrige_espacamento(texto):
     texto = texto.replace("'), " , """
 
@@ -91,8 +90,10 @@ def salvar_arquivo_Log_Sucesso(conteudo, nome_arquivo=f"Log_Sucesso_Pagamento_bo
         print(f"Erro ao salvar o conteúdo no arquivo: {e}")
 
 
+#Caminho da pasta do vscode como variável 
+pasta_vscode = r"C:\Automatização_Script\Script-MCC\Scripts\Scripts_Postgres"
 
-pasta_vscode = r"C:\Automatização_Script\Script-MCC\Scripts\Scripts_Postgres\LogsRetorno"
+#Função para mover os arquivos editados da pasta do VSCODE para a pasta destino e Renomeia caso necessário
 def renomear_e_mover_arquivos(pasta_origem, pasta_destino, parametro_nome, novo_nome_base):
     """
     Renomeia e move arquivos que contenham um parâmetro no nome para uma pasta de destino.
@@ -147,11 +148,11 @@ try:
     db_user = os.getenv("User_Postgres")
     db_password = os.getenv("Senha_Postgres")
 
-    # Make sure all variables are defined.
+    # Confirma que os valores estão inseridos no ambiente do sistema
     if not all([db_host, db_name, db_user, db_password]):
         raise ValueError("Insira valores do banco de dados nas variaveis de ambiente")
     
-    # Connect into Database set
+    # Conecta com o Banco de dados usando as variaveis do ambiente de sistema
     conexao = psycopg2.connect(
         host=db_host,
         database=db_name,
@@ -159,7 +160,7 @@ try:
         password=db_password,
         options="-c client_encoding=UTF8"
     )
-    # CREATE A CURSOR
+    # Cria um cursor para execução de Querys
     SQL = conexao.cursor()
 except Exception as e:
     print(f"Unable to connect to the database: {e}")
@@ -172,10 +173,10 @@ def TesteVariaveis():
     print(db_password)
     print(data_atual_postgres)
 
-#Monitoramento Banco de dados
+# Monitoramento das saidas do Banco de dados
 def MonitoraPostgres():
     
-    #Lança a Query para o Psycopg puxar do postgre os pagamentos de boletos (10:00; 12:00; 14;00; 16;00)
+     #Lança a Query para o Psycopg puxar do postgre os pagamentos de boletos (10:00; 12:00; 14;00; 16;00)
     SQL.execute("""
         SELECT t.id, u.name, u.document, t.description, t.value, DATE(t.created_at) AS created_at, 
              i.total_value, t.invoice_id, a."limit", t.invoice_id
@@ -189,15 +190,28 @@ def MonitoraPostgres():
     """, ('%Pagamento de Boleto%',))
     
     leituraPagBoleto = SQL.fetchall()
+
+    #Lança Query mais completa para sair a data completa com a hora da transação no TXT
+    SQL.execute("""
+        SELECT t.id, u.name, u.document, t.description, t.value, t.created_at, 
+        i.total_value, t.invoice_id, a."limit", t.invoice_id
+        FROM public.transaction as t 
+        INNER JOIN public.invoice as i ON t.invoice_id = i.id
+        INNER JOIN public.account as a ON t.account_id = a.id
+        INNER JOIN public.user as u ON a.user_id = u.id
+        WHERE t.description LIKE %s
+        ORDER BY t.created_at DESC 
+        LIMIT 5;
+    """, ('%Pagamento de Boleto%',))
+    DadosPagBoleto = SQL.fetchall()
     
     for row in leituraPagBoleto:
 
-        if row[5] in leituraPagBoleto != data_atual_postgres or str == "":
+        if str(row[5]) != str(data_atual_postgres):
                 print("Pagamento de boleto possivelmente com erro")
-                # Verifica e salva no arquivo, se necessário
-                salvar_arquivo_Log_Erro(conteudo= f"{Data_e_HoraLOG}\n \n{leituraPagBoleto}\n", nome_arquivo=f"Log_Erro_Pagamento_boleto_{data_Pasta_Arquivo}.txt")
+                salvar_arquivo_Log_Erro(conteudo= f"\n{DadosPagBoleto}\n", nome_arquivo=f"Log_Erro_Pagamento_boleto_{data_Pasta_Arquivo}.txt")
                 
-                #Renomeia e move arquivo das files vscode
+                #Renomeia e move arquivo da pasta vscode para a pasta de logs
                 renomear_e_mover_arquivos(
                 pasta_origem= pasta_vscode,
                 pasta_destino= r"C:\LogsAutomatizacao\LogsErro",
@@ -207,15 +221,17 @@ def MonitoraPostgres():
 
         else:
             print("Pagamento de boleto possivelmente funcional")
-            salvar_arquivo_Log_Sucesso(conteudo= f"\n{leituraPagBoleto}\n", nome_arquivo=f"Log_Sucesso_Pagamento_boleto_{data_Pasta_Arquivo}.txt")
-            #Renomeia e move arquivo das files vscode
+            salvar_arquivo_Log_Sucesso(conteudo= f"\n{DadosPagBoleto}\n", nome_arquivo=f"Log_Sucesso_Pagamento_boleto_{data_Pasta_Arquivo}.txt")
+            
+            #Renomeia e move arquivo da pasta vscode para a pasta de logs
             renomear_e_mover_arquivos(
                 pasta_origem= pasta_vscode,
                 pasta_destino= r"C:\LogsAutomatizacao\LogsSucesso",
                 parametro_nome= "Log_Sucesso_Pagamento_boleto_",
                 novo_nome_base= f"Log_Sucesso_Pagamento_boleto_{data_Pasta_Arquivo}"
                 )
-
+   
+   #Lança Query para puxar do Postgre os resultados de clientes parados no Onboarding ordenados por erro.
     SQL.execute("""select 
     case o.type
       when 0 then 'Completo'
@@ -249,14 +265,34 @@ left join lateral
  
 Where etapaAtual.is_background = true
   and (etapaAtual.created_at + interval '5 minutes') < (timezone('utc', now()) - interval '3 hours')
-Order By etapaAtual.created_at desc
-LIMIT 5;
+Order By "Erro"
+LIMIT 10;
 """)
     
     leituraOnboarding = SQL.fetchall()
     for row in leituraOnboarding:
-        if row[9] in leituraOnboarding != "":
-            print("SQL")
+        if str(row[9]) == str(""):
+            print("Sem erros encontrados")
+            salvar_arquivo_Log_Sucesso(conteudo= f"\n{leituraOnboarding}\n", nome_arquivo=f"Log_Sucesso_onboarding_{data_Pasta_Arquivo}.txt")
+            
+            #Renomeia e move arquivo da pasta vscode para a pasta de logs
+            renomear_e_mover_arquivos(
+                pasta_origem= pasta_vscode,
+                pasta_destino= r"C:\LogsAutomatizacao\LogsSucesso",
+                parametro_nome= "Log_Sucesso_onboarding_",
+                novo_nome_base= f"Log_Sucesso_Onboarding_{data_Pasta_Arquivo}"
+                )
+        
+        else:
+            print("Onboarding com erros")
+            salvar_arquivo_Log_Erro(conteudo= f"\n{leituraOnboarding}\n", nome_arquivo=f"Log_Erro_onboarding_{data_Pasta_Arquivo}.txt")
+            #Renomeia e move arquivo da pasta vscode para a pasta de logs
+            renomear_e_mover_arquivos(
+                pasta_origem= pasta_vscode,
+                pasta_destino= r"C:\LogsAutomatizacao\LogsErro",
+                parametro_nome= "Log_Erro_onboarding_",
+                novo_nome_base= f"Log_Erro_Onboarding{data_Pasta_Arquivo}"
+                )
         
     print(f"{row [0]} | {row [1]} | {row [2]} | {row [3]} | {row [4]} | {row [5]} | {row [6]} | {row [7]} | {row [8]} | {row [9]} | {row [10]} | {row [11]}")
 

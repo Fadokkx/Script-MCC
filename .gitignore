@@ -1,5 +1,3 @@
-/Logs/Mensagens_Debug.txt
-/Backups/BackupProcessadoras.py
-/Backups/move_arquivos_Backup.py
-/Backups/Renomeador_Arquivos_Backup.py
-/Backups/Query.SQL
+/Logs
+/Backups
+Scripts/Scripts_Postgres/LogsRetorno

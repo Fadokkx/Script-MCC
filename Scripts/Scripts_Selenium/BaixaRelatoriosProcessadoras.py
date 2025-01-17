@@ -763,8 +763,8 @@ def Relatorios_Zetra():
     remenda_Bug.send_keys(Keys.PAGE_DOWN)
     driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[3]/div[2]/div/div[2]/table/tbody/tr[1]/td[4]/div/div/a")
     time.sleep(1)
-    driver.find_element(By.XPATH, '//*[@id="userMenu"]/div').click()
-    driver.find_element(By.XPATH, '//*[@id="dataTables"]/tbody/tr[1]/td[4]/div/div/div/a[1]').click()
+    driver.find_element(By.XPATH, '/html/body/section/div[3]/div/form/div[3]/div[2]/div/div[2]/table/tbody/tr[1]/td[4]/div/div/a').click()
+    driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[3]/div[2]/div/div[2]/table/tbody/tr[1]/td[4]/div/div/div/a[1]").click()
     driver.execute_script ("document.body.style.zoom='100%'")
 
     time.sleep(7)
@@ -1864,7 +1864,7 @@ def Relatorios_NeoConsig():
     time.sleep(3)
     driver.find_element(By.XPATH, "/html/body/div[5]/div[1]/div/ul/li[5]/ul/li/a").click()
     time.sleep(2)
-    driver.find_element(By.XPATH, "/html/body/div[5]/div[1]/div/ul/li[5]/ul/li/ul/li/a").click()
+    driver.find_element(By.XPATH, "/html/body/div[5]/div[1]/div/ul/li[5]/ul/li/ul/li[2]/a").click()
     time.sleep(5)
     
     #Selecionando Mês 
@@ -2151,13 +2151,13 @@ def Relatorios_BPO():
     time.sleep(5)
 #------------------ Chama as funções para gerar relatórios --------------------------------
 
-teste_variaveis()
+#teste_variaveis()
 
-Relatorios_Zetra() #100% Funcional Relatório Definitivo
+#Relatorios_Zetra() #100% Funcional Relatório Definitivo
 
-Relatorios_CIP() # 100% Funcional Relatório Definitivo
+#Relatorios_CIP() # 100% Funcional Relatório Definitivo
 
-Relatorios_ConsigFacil() #90% Funcional (Falta reset Maranhão) 
+#Relatorios_ConsigFacil() #90% Funcional (Falta reset Maranhão) 
 
 RodarProcsVPN = input("Digite 's' se deseja rodar as processadoras que necessitam de VPN ou 'n' para pular\n")
 

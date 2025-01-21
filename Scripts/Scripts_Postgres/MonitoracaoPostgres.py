@@ -1,4 +1,5 @@
 import os
+from apscheduler.schedulers.blocking import BlockingScheduler
 import time
 import psycopg2
 import locale
@@ -18,22 +19,20 @@ def Corrige_espacamento(texto):
 """)
     return texto
 
-# Função para salvar os resultados de erro em um arquivo .txt
-def salvar_arquivo_Log_Erro(conteudo, nome_arquivo=f"Log_Erro_Pagamento_boleto_{data_Pasta_Arquivo}.txt"):
+def salvar_arquivo_Log_Erro_Boleto(conteudo, nome_arquivo=f"Log_Erro_Pagamento_boleto_{data_Pasta_Arquivo}.txt"):
     try:
         # Define o caminho do diretório de erro
-        diretorio_formatacao = r"C:\Automatização_Script\Script-MCC\Scripts\Scripts_Postgres\LogsRetorno"
-        diretorio_erro = r"C:\LogsAutomatizacao\LogsErro"
+        diretorio_erro = r"C:\Automatização_Script\Script-MCC\Logs\LogsErro"
         
         # Garante que o diretório exista
         os.makedirs(diretorio_erro, exist_ok=True)
 
         # Define o caminho completo do arquivo
-        caminho_arquivo = os.path.join(diretorio_formatacao, nome_arquivo)
+        caminho_arquivo = os.path.join(diretorio_erro, nome_arquivo)
 
-        # Abre o arquivo para escrita (irá criar o arquivo se não existir)
-        with open(caminho_arquivo, "w", encoding="utf-8") as file:
-            #Data e hora da execução
+        # Abre o arquivo para adicionar conteúdo (irá criar o arquivo se não existir)
+        with open(caminho_arquivo, "a", encoding="utf-8") as file:  # Alterado para "a" (append)
+            # Data e hora da execução
             file.write(f"{Data_e_HoraLOG}\n\n")
             # Cabeçalho
             file.write("\nId | Nome | Cpf | Descrição | Valor | Data & hora | Valor da fatura\n")
@@ -53,29 +52,27 @@ def salvar_arquivo_Log_Erro(conteudo, nome_arquivo=f"Log_Erro_Pagamento_boleto_{
     except Exception as e:
         print(f"Erro ao salvar o conteúdo no arquivo: {e}")
 
-
 # Função para salvar os resultados de sucesso em um arquivo .txt
-def salvar_arquivo_Log_Sucesso(conteudo, nome_arquivo=f"Log_Sucesso_Pagamento_boleto_{data_Pasta_Arquivo}.txt"):
+def salvar_arquivo_Log_Sucesso_Boleto(conteudo, nome_arquivo=f"Log_Sucesso_Pagamento_boleto_{data_Pasta_Arquivo}.txt"):
     try:
         # Define o caminho do diretório de sucesso
-        diretorio_formatacao = r"C:\Automatização_Script\Script-MCC\Scripts\Scripts_Postgres\LogsRetorno"
-        diretorio_sucesso = r"C:\LogsAutomatizacao\LogsSucesso"
+        diretorio_sucesso = r"C:\Automatização_Script\Script-MCC\Logs\LogsSucesso"
         
         # Garante que o diretório exista
         os.makedirs(diretorio_sucesso, exist_ok=True)
 
         # Define o caminho completo do arquivo
-        caminho_arquivo = os.path.join(diretorio_formatacao, nome_arquivo)
+        caminho_arquivo = os.path.join(diretorio_sucesso, nome_arquivo)
 
-        # Abre o arquivo para escrita (irá criar o arquivo se não existir)
-        with open(caminho_arquivo, "w", encoding="utf-8") as file:
-            # Escreve o conteúdo no arquivo
-             #Data e hora da execução
+        # Abre o arquivo para adicionar conteúdo (irá criar o arquivo se não existir)
+        with open(caminho_arquivo, "a", encoding="utf-8") as file:  # Alterado para "a" (append)
+            # Data e hora da execução
             file.write(f"{Data_e_HoraLOG}\n")
             # Cabeçalho
             file.write("Id | Nome | Cpf | Descrição | Valor | Data & hora | Valor da fatura\n")
             # Escreve o conteúdo no arquivo
             file.write(str(f"{conteudo}\n\n"))
+        
         with open(caminho_arquivo, "r+", encoding="utf-8") as file:
             # Lê todo o conteúdo do arquivo
             conteudo_arquivo = file.read()
@@ -89,51 +86,118 @@ def salvar_arquivo_Log_Sucesso(conteudo, nome_arquivo=f"Log_Sucesso_Pagamento_bo
     except Exception as e:
         print(f"Erro ao salvar o conteúdo no arquivo: {e}")
 
+def salvar_arquivo_Log_Sucesso_Onboarding(conteudo, nome_arquivo=f"Log_Sucesso_Onboarding_{data_Pasta_Arquivo}.txt"):
+    try:
+        # Define o caminho do diretório de sucesso
+        diretorio_sucesso = r"C:\Automatização_Script\Script-MCC\Logs\LogsSucesso"
+        
+        # Garante que o diretório exista
+        os.makedirs(diretorio_sucesso, exist_ok=True)
 
-#Caminho da pasta do vscode como variável 
-pasta_vscode = r"C:\Automatização_Script\Script-MCC\Scripts\Scripts_Postgres"
+        # Define o caminho completo do arquivo
+        caminho_arquivo = os.path.join(diretorio_sucesso, nome_arquivo)
 
-#Função para mover os arquivos editados da pasta do VSCODE para a pasta destino e Renomeia caso necessário
+        # Abre o arquivo para escrita (irá criar o arquivo se não existir)
+        with open(caminho_arquivo, "a", encoding="utf-8") as file:
+            # Escreve o conteúdo no arquivo
+            #Data e hora da execução
+            file.write(f"{Data_e_HoraLOG}\n")
+            # Cabeçalho
+            file.write("Tipo | Convênio | CPF | Nome | Valor_margem | Iniciado em | Etapa atual | Telefone | Erro | ID Onboarding | ID Etapa atual|\n")
+            # Escreve o conteúdo no arquivo
+            file.write(str(f"{conteudo}\n"))
+        with open(caminho_arquivo, "r+", encoding="utf-8") as file:
+            # Lê todo o conteúdo do arquivo
+            conteudo_arquivo = file.read()
+            # Aplica a função de correção
+            conteudo_corrigido = Corrige_espacamento(conteudo_arquivo)
+            # Volta para o início do arquivo para sobrescrever o conteúdo
+            file.seek(0)
+            file.write(conteudo_corrigido)
+            file.truncate()  #
+        print(f"Conteúdo salvo com sucesso em {caminho_arquivo}")
+    except Exception as e:
+        print(f"Erro ao salvar o conteúdo no arquivo: {e}")
+
+def salvar_arquivo_Log_Erro_Onboarding(conteudo, nome_arquivo=f"Log_Erro_Onboarding_{data_Pasta_Arquivo}.txt"):
+    try:
+        # Define o caminho do diretório de sucesso
+        diretorio_erro = r"C:\Automatização_Script\Script-MCC\Logs\LogsErro"
+        
+        # Garante que o diretório exista
+        os.makedirs(diretorio_erro, exist_ok=True)
+
+        # Define o caminho completo do arquivo
+        caminho_arquivo = os.path.join(diretorio_erro, nome_arquivo)
+
+        # Abre o arquivo para escrita (irá criar o arquivo se não existir)
+        with open(caminho_arquivo, "a", encoding="utf-8") as file:
+            # Escreve o conteúdo no arquivo
+             #Data e hora da execução
+            file.write(f"{Data_e_HoraLOG}\n")
+            # Cabeçalho
+            file.write("Tipo | Convênio | CPF | Nome | Valor_margem | Iniciado em | Etapa atual | Telefone | Erro | ID Onboarding | ID Etapa atual|\n")
+            # Escreve o conteúdo no arquivo
+            file.write(str(f"{conteudo}\n"))
+        with open(caminho_arquivo, "r+", encoding="utf-8") as file:
+            # Lê todo o conteúdo do arquivo
+            conteudo_arquivo = file.read()
+            # Aplica a função de correção
+            conteudo_corrigido = Corrige_espacamento(conteudo_arquivo)
+            # Volta para o início do arquivo para sobrescrever o conteúdo
+            file.seek(0)
+            file.write(conteudo_corrigido)
+            file.truncate()  #
+        print(f"Conteúdo salvo com sucesso em {caminho_arquivo}")
+    except Exception as e:
+        print(f"Erro ao salvar o conteúdo no arquivo: {e}")
+
+#Função para mover os arquivos editados
 def renomear_e_mover_arquivos(pasta_origem, pasta_destino, parametro_nome, novo_nome_base):
     """
     Renomeia e move arquivos que contenham um parâmetro no nome para uma pasta de destino.
- 
-    :param pasta_origem: Caminho da pasta onde os arquivos estão localizados (ex.: Downloads).
+    Sempre adiciona um sufixo _1, _2, ... ao novo nome, independentemente de duplicação.
+
+    :param pasta_origem: Caminho da pasta onde os arquivos estão localizados.
     :param pasta_destino: Caminho da pasta para onde os arquivos serão movidos.
-    :param parametro_nome: Texto que deve estar no nome dos arquivos a serem renomeados e movidos.
+    :param parametro_nome: Texto que deve estar no nome dos arquivos.
     :param novo_nome_base: Base do novo nome para os arquivos renomeados.
     """
-    
     try:
         # Criar a pasta de destino, se não existir
-        if not os.path.exists(pasta_destino):
-            os.makedirs(pasta_destino)
-            print(f"Pasta de destino criada: {pasta_destino}")
- 
+        os.makedirs(pasta_destino, exist_ok=True)
+
         # Listar arquivos na pasta de origem
         arquivos = os.listdir(pasta_origem)
-        contador = 1  # Contador para evitar nomes duplicados
- 
+        contador = 1
+
         for arquivo in arquivos:
             caminho_origem = os.path.join(pasta_origem, arquivo)
- 
+
             # Ignorar pastas
             if os.path.isdir(caminho_origem):
                 continue
- 
+
             # Verificar se o parâmetro está no nome do arquivo
             if parametro_nome in arquivo:
                 # Criar o novo nome do arquivo
                 extensao = os.path.splitext(arquivo)[1]  # Pega a extensão do arquivo
-                novo_nome = f"{novo_nome_base}{extensao}"
-                contador += 1
- 
+                novo_nome = f"{novo_nome_base}_{contador}{extensao}"
                 caminho_destino = os.path.join(pasta_destino, novo_nome)
- 
+
+                # Se o arquivo com o novo nome já existe incrementa o contador
+                while os.path.exists(caminho_destino):
+                    contador += 1
+                    novo_nome = f"{novo_nome_base}_{contador}{extensao}"
+                    caminho_destino = os.path.join(pasta_destino, novo_nome)
+
                 # Renomear e mover o arquivo
                 shutil.move(caminho_origem, caminho_destino)
                 print(f"Renomeado e movido: {arquivo} -> {novo_nome}")
- 
+
+                # Incrementa o contador para o próximo arquivo
+                contador += 1
+
         print("Renomeação e movimentação concluídas!")
     except Exception as e:
         print(f"Ocorreu um erro: {e}")
@@ -175,7 +239,10 @@ def TesteVariaveis():
 
 # Monitoramento das saidas do Banco de dados
 def MonitoraPostgres():
-    
+    # Variáveis para armazenar o conteúdo acumulado de sucesso e erro
+    conteudo_sucesso = ""
+    conteudo_erro = ""
+
      #Lança a Query para o Psycopg puxar do postgre os pagamentos de boletos (10:00; 12:00; 14;00; 16;00)
     SQL.execute("""
         SELECT t.id, u.name, u.document, t.description, t.value, DATE(t.created_at) AS created_at, 
@@ -206,31 +273,37 @@ def MonitoraPostgres():
     DadosPagBoleto = SQL.fetchall()
     
     for row in leituraPagBoleto:
-
+    # Verificar o valor de row[5] (Data de Transação)
         if str(row[5]) != str(data_atual_postgres):
-                print("Pagamento de boleto possivelmente com erro")
-                salvar_arquivo_Log_Erro(conteudo= f"\n{DadosPagBoleto}\n", nome_arquivo=f"Log_Erro_Pagamento_boleto_{data_Pasta_Arquivo}.txt")
-                
-                #Renomeia e move arquivo da pasta vscode para a pasta de logs
-                renomear_e_mover_arquivos(
-                pasta_origem= pasta_vscode,
-                pasta_destino= r"C:\LogsAutomatizacao\LogsErro",
-                parametro_nome= "Log_Erro_Pagamento_boleto_",
-                novo_nome_base= f"Log_Erro_Pagamento_boleto_{data_Pasta_Arquivo}"
-                )
-
+        # Se for um erro, acumula no conteúdo de erro
+            conteudo_erro += f"\n{row[0]} | {row[1]} | {row[2]} | {row[3]} | {row[4]} | {row[5]} | {row[6]} | {row[7]} | {row[8]} | {row[9]}\n\n"
         else:
-            print("Pagamento de boleto possivelmente funcional")
-            salvar_arquivo_Log_Sucesso(conteudo= f"\n{DadosPagBoleto}\n", nome_arquivo=f"Log_Sucesso_Pagamento_boleto_{data_Pasta_Arquivo}.txt")
-            
-            #Renomeia e move arquivo da pasta vscode para a pasta de logs
-            renomear_e_mover_arquivos(
-                pasta_origem= pasta_vscode,
-                pasta_destino= r"C:\LogsAutomatizacao\LogsSucesso",
-                parametro_nome= "Log_Sucesso_Pagamento_boleto_",
-                novo_nome_base= f"Log_Sucesso_Pagamento_boleto_{data_Pasta_Arquivo}"
-                )
-   
+        # Se for sucesso, acumula no conteúdo de sucesso
+            conteudo_sucesso += f"\n{row[0]} | {row[1]} | {row[2]} | {row[3]} | {row[4]} | {row[5]} | {row[6]} | {row[7]} | {row[8]} | {row[9]}\n\n"
+
+    # Depois que o loop terminou, você salva os arquivos com todos os dados
+    if conteudo_erro:
+        salvar_arquivo_Log_Erro_Boleto(conteudo=conteudo_erro)
+    if conteudo_sucesso:
+        salvar_arquivo_Log_Sucesso_Boleto(conteudo=conteudo_sucesso)
+    
+    # Renomeia e move os arquivos gerados (se necessário)
+    if conteudo_erro:
+        renomear_e_mover_arquivos(
+            pasta_origem= r"C:\Automatização_Script\Script-MCC\Logs\LogsErro",
+            pasta_destino= rf"C:\LogsAutomatizacao\LogsErro\{data_Pasta_Arquivo}",
+            parametro_nome= "Log_Erro_Pagamento_boleto_",
+            novo_nome_base= f"Log_Erro_Pagamento_boleto_{data_Pasta_Arquivo}"
+        )
+    if conteudo_sucesso:
+        renomear_e_mover_arquivos(
+            pasta_origem= r"C:\Automatização_Script\Script-MCC\Logs\LogsSucesso",
+            pasta_destino= rf"C:\LogsAutomatizacao\LogsSucesso\{data_Pasta_Arquivo}",
+            parametro_nome= "Log_Sucesso_Pagamento_boleto_",
+            novo_nome_base= f"Log_Sucesso_Pagamento_boleto_{data_Pasta_Arquivo}"
+        )
+
+    print("Log da leitura do Pagamento de Boleto foi enviado para a pasta de Logs")
    #Lança Query para puxar do Postgre os resultados de clientes parados no Onboarding ordenados por erro.
     SQL.execute("""select 
     case o.type
@@ -268,40 +341,52 @@ Where etapaAtual.is_background = true
 Order By "Erro"
 LIMIT 10;
 """)
-    
+
     leituraOnboarding = SQL.fetchall()
+    
+    #Procura por erro o resultado da query 
     for row in leituraOnboarding:
-        if str(row[9]) == str(""):
+        if str(row[9]) == str("None"):
             print("Sem erros encontrados")
-            salvar_arquivo_Log_Sucesso(conteudo= f"\n{leituraOnboarding}\n", nome_arquivo=f"Log_Sucesso_onboarding_{data_Pasta_Arquivo}.txt")
+            salvar_arquivo_Log_Sucesso_Onboarding(conteudo= f"\n{leituraOnboarding}\n", nome_arquivo=f"Log_Sucesso_onboarding_{data_Pasta_Arquivo}.txt")
+            
+            time.sleep(2)
             
             #Renomeia e move arquivo da pasta vscode para a pasta de logs
             renomear_e_mover_arquivos(
-                pasta_origem= pasta_vscode,
-                pasta_destino= r"C:\LogsAutomatizacao\LogsSucesso",
-                parametro_nome= "Log_Sucesso_onboarding_",
+                pasta_origem= r"C:\Automatização_Script\Script-MCC\Logs\LogsSucesso" ,
+                pasta_destino= rf"C:\LogsAutomatizacao\LogsSucesso\{data_Pasta_Arquivo}",
+                parametro_nome= "Log_Sucesso_Onboarding_",
                 novo_nome_base= f"Log_Sucesso_Onboarding_{data_Pasta_Arquivo}"
                 )
-        
+   
         else:
             print("Onboarding com erros")
-            salvar_arquivo_Log_Erro(conteudo= f"\n{leituraOnboarding}\n", nome_arquivo=f"Log_Erro_onboarding_{data_Pasta_Arquivo}.txt")
+            salvar_arquivo_Log_Erro_Onboarding(conteudo= f"\n{leituraOnboarding}\n", nome_arquivo=f"Log_Erro_onboarding_{data_Pasta_Arquivo}.txt")
+            
             #Renomeia e move arquivo da pasta vscode para a pasta de logs
+            time.sleep(2)
             renomear_e_mover_arquivos(
-                pasta_origem= pasta_vscode,
-                pasta_destino= r"C:\LogsAutomatizacao\LogsErro",
+                pasta_origem= r"C:\Automatização_Script\Script-MCC\Logs\LogsErro",
+                pasta_destino= rf"C:\LogsAutomatizacao\LogsErro\{data_Pasta_Arquivo}",
                 parametro_nome= "Log_Erro_onboarding_",
-                novo_nome_base= f"Log_Erro_Onboarding{data_Pasta_Arquivo}"
+                novo_nome_base= f"Log_Erro_Onboarding_{data_Pasta_Arquivo}"
                 )
         
-    print(f"{row [0]} | {row [1]} | {row [2]} | {row [3]} | {row [4]} | {row [5]} | {row [6]} | {row [7]} | {row [8]} | {row [9]} | {row [10]} | {row [11]}")
+    print("Log da leitura do Onboarding foi enviado para a pasta de Logs")
+"""
+#Agenda o run da função de monitoria do postgres
+agenda = BlockingScheduler()
 
+agenda.add_job(MonitoraPostgres, 'cron', hour=11, minute=00)   
+agenda.add_job(MonitoraPostgres, 'cron', hour=13, minute=15)  
+agenda.add_job(MonitoraPostgres, 'cron', hour=15, minute=00)
+agenda.add_job(MonitoraPostgres, 'cron', hour=17, minute=00)
 
-# Chama a execução das funções -------------------------------------------------------------------------------------------
+# Iniciar o agendador
+agenda.start()
+"""
+MonitoraPostgres()
 
 #Chamar função caso tenham erros recorrentes
 #TesteVariaveis()
-
-#Chama a função de monitoria do Postgres e suas Querys
-MonitoraPostgres()
-

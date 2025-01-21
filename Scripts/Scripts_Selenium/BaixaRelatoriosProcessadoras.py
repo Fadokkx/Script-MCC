@@ -312,6 +312,7 @@ def Relatorios_Zetra():
     driver.execute_script ("document.body.style.zoom='33%'")
     remenda_Bug = driver.find_element(By.XPATH, "/html/body")
     remenda_Bug.send_keys(Keys.PAGE_DOWN)
+    remenda_Bug.send_keys(Seta_Baixo)
     time.sleep(2)
     driver.find_element(By.XPATH, "/html/body/section/div[3]/div/form/div[3]/div[2]/div/div[2]/table/tbody/tr[1]/td[4]/div/div/a")
     time.sleep(1)
@@ -365,7 +366,7 @@ def Relatorios_Zetra():
     driver.find_element(By.XPATH, '//*[@id="container"]/ul/li[3]/a').click()
     time.sleep(2)
     driver.find_element(By.XPATH,"/html/body/section/div[2]/div/div/div[1]/div[2]/ul/div[2]/ul/li[2]/a").click() #ERRO
-    
+    time.sleep(3)
     #Data de inclusão/Alteração
     time.sleep(2)
     Selec_data = driver.find_element(By.XPATH,"/html/body/section/div[3]/div/form/div[1]/div[2]/div/div[2]/div/div[1]/div/div[2]/input")
@@ -1187,7 +1188,7 @@ def Relatorios_CIP():
 
 #Logins na CONSIGFACIL---------------------------------------------------------
 def Relatorios_ConsigFacil():
-#Começa o login na processadora do Pernambuco
+    #Começa o login na processadora do Piauí
     driver.get(Proc_PIAUI)
     User_ConsigFacil = driver.find_element (By.ID, "usuario")
     User_ConsigFacil.clear()
@@ -1289,165 +1290,7 @@ def Relatorios_ConsigFacil():
         novo_nome_base= f"consigfacil_piaui_{data_arquivo}"
     )
 
-    #Começa o login na processadora do Pernambuco
-    driver.get(Proc_GovPernambuco)
-    User_ConsigFacil = driver.find_element (By.ID, "usuario")
-    User_ConsigFacil.clear()
-    User_ConsigFacil.send_keys(ConsigFacil_Username_Values)
-    Psw_ConsigFacil = driver.find_element (By.ID, "senha")
-    Psw_ConsigFacil.clear()
-    Psw_ConsigFacil.send_keys(ConsigFacil_Psw_Values)
-    ConsigFacil_CaptchaResolver = input("Digite o Captcha: ")
-    ConsigFacilCaptcha = driver.find_element(By.ID, "captcha")
-    ConsigFacilCaptcha.send_keys(ConsigFacil_CaptchaResolver)
-    Psw_ConsigFacil.send_keys(Keys.RETURN)
-    time.sleep(1) 
-    try:
-        element = driver.find_element(By.XPATH, "/html/body/div/div[2]/form/div[5]/input")
-        # Aqui o código não interage com o elemento, apenas o armazena em uma variável
-        print("Elemento encontrado!")
-        User_ConsigFacil = driver.find_element (By.ID, "usuario")
-        User_ConsigFacil.clear()
-        User_ConsigFacil.send_keys(ConsigFacil_Username_Values)
-        Psw_ConsigFacil = driver.find_element (By.ID, "senha")
-        Psw_ConsigFacil.clear()
-        Psw_ConsigFacil.send_keys(ConsigFacil_Psw_Values)
-        Segundo_Captcha = input("Captcha digitado errado, tente novamente: ")
-        element.send_keys(Segundo_Captcha)
-        driver.find_element(By.XPATH, "/html/body/div/div[2]/form/button").click()
-    except Exception:
-        print("Elemento não encontrado!")
-    time.sleep(2)
-    
-    #Fecha aviso do navegador
-    driver.find_element(By.XPATH, "/html/body").click()
-    time.sleep(2)
-    #Fecha Janela de novidades
-    driver.find_element(By.XPATH,"/html/body/div[2]/div[4]/div/div/div[1]/button").click()
-    time.sleep(1)
-
-    try:
-        element = driver.find_element(By.XPATH, "/html/body/div[3]/div[1]/div[2]/div/div/div/div/div/div[6]/div[2]/ul/div[3]/div/div/div[3]/button[2]")
-        # Aqui o código não interage com o elemento, apenas o armazena em uma variável
-        print("Elemento encontrado!")
-        driver.find_element(By.XPATH, "/html/body/div[3]/div[1]/div[2]/div/div/div/div/div/div[6]/div[2]/ul/div[3]/div/div/div[3]/button[1]").click()
-    except Exception:
-        print("Elemento não encontrado!")
-    time.sleep(2)
-    
-    #SELECIONA A ABA RELATÓRIO
-    driver.find_element(By.XPATH,"/html/body/div[2]/div[3]/div/ul/li[2]/a").click()
-    time.sleep(3)
-    driver.find_element(By.XPATH, "/html/body/div[2]/div[3]/div/ul/li[2]/ul/li[2]/a").click() #SELECIONA O TIPO DE RELATORIO
-    time.sleep(3)
-    
-    #Selec Periodo Folha
-    Selec_Data_inicio = driver.find_element(By.XPATH,"/html/body/div[2]/div[5]/form/table[2]/tbody/tr[3]/td[2]/input")
-    Selec_Data_inicio.send_keys(data_inicio_Mes_ConsigFacil)
-    Selec_Data_Fim = driver.find_element(By.XPATH, "/html/body/div[2]/div[5]/form/table[2]/tbody/tr[3]/td[3]/input")
-    Selec_Data_Fim.send_keys(data_final_Mes_ConsigFacil)
-    time.sleep(3)
-
-    #Seleciona OrderBy Data
-    driver.find_element(By.XPATH,"/html/body/div[2]/div[5]/form/table[2]/tbody/tr[9]/td[2]/select").click()
-    driver.find_element(By.XPATH, "/html/body/div[2]/div[5]/form/table[2]/tbody/tr[9]/td[2]/select/option[2]").click()   
-    time.sleep(3)
-    
-    #Seleciona Tipo de arquivo
-    driver.find_element(By.XPATH, "/html/body/div[2]/div[5]/form/table[2]/tbody/tr[12]/td[2]/select").click()
-    driver.find_element(By.XPATH, "/html/body/div[2]/div[5]/form/table[2]/tbody/tr[12]/td[2]/select/option[2]").click()
-    driver.find_element(By.XPATH, "/html/body/div[2]/div[5]/form/table[2]/tbody/tr[12]/td[2]/select/option[2]").click()
-    
-    #Download Arquivo
-    driver.find_element(By.XPATH, "/html/body/div[2]/div[5]/form/table[2]/tbody/tr[13]/td/p/input").click()
-    driver.execute_script ("document.body.style.zoom='100%'")
-    time.sleep(10)
-    
-    renomear_e_mover_arquivos(
-        pasta_origem= pasta_downloads,
-        pasta_destino= rf"C:\Relatórios\{data_pasta}",
-        parametro_nome= "relatorio",
-        novo_nome_base= f"consigfacil_pernambuco_{data_arquivo}"
-    )
-
-#Começa o login na processadora do Recife
-    driver.get(Proc_PrefRecife)
-    User_ConsigFacil = driver.find_element (By.ID, "usuario")
-    User_ConsigFacil.clear()
-    User_ConsigFacil.send_keys(ConsigFacil_Username_Values)
-    Psw_ConsigFacil = driver.find_element (By.ID, "senha")
-    Psw_ConsigFacil.clear()
-    Psw_ConsigFacil.send_keys(ConsigFacil_Psw_Values)
-    ConsigFacil_CaptchaResolver = input("Digite o Captcha: ")
-    ConsigFacilCaptcha = driver.find_element(By.ID, "captcha")
-    ConsigFacilCaptcha.send_keys(ConsigFacil_CaptchaResolver)
-    Psw_ConsigFacil.send_keys(Keys.RETURN)
-    time.sleep(1) 
-    try:
-        element = driver.find_element(By.XPATH, "/html/body/div/div[2]/form/div[5]/input")
-        # Aqui o código não interage com o elemento, apenas o armazena em uma variável
-        print("Elemento encontrado!")
-        User_ConsigFacil = driver.find_element (By.ID, "usuario")
-        User_ConsigFacil.clear()
-        User_ConsigFacil.send_keys(ConsigFacil_Username_Values)
-        Psw_ConsigFacil = driver.find_element (By.ID, "senha")
-        Psw_ConsigFacil.clear()
-        Psw_ConsigFacil.send_keys(ConsigFacil_Psw_Values)
-        Segundo_Captcha = input("Captcha digitado errado, tente novamente: ")
-        element.send_keys(Segundo_Captcha)
-        driver.find_element(By.XPATH, "/html/body/div/div[2]/form/button").click()
-    except Exception:
-        print("Elemento não encontrado!")
-
-    #Fecha Janela de novidades
-    driver.find_element(By.XPATH,'//*[@id="modalExibeBanners"]/div/div/div[1]/button').click()
-    time.sleep(1)
-
-    try:
-        element = driver.find_element(By.XPATH, "/html/body/div[3]/div[1]/div[2]/div/div/div/div/div/div[6]/div[2]/ul/div[3]/div/div/div[3]/button[2]")
-        # Aqui o código não interage com o elemento, apenas o armazena em uma variável
-        print("Elemento encontrado!")
-        driver.find_element(By.XPATH, "/html/body/div[3]/div[1]/div[2]/div/div/div/div/div/div[6]/div[2]/ul/div[3]/div/div/div[3]/button[1]").click()
-    except Exception:
-        print("Elemento não encontrado!")
-    time.sleep(2)
-    
-    #SELECIONA A ABA RELATÓRIO
-    driver.find_element(By.XPATH,"/html/body/div[2]/ul/div[1]/div[2]/div/div/div/li[3]/a").click()
-    time.sleep(3)
-    driver.find_element(By.XPATH, "/html/body/div[2]/ul/div[1]/div[2]/div/div/div/li[3]/ul/li[2]/a").click() #SELECIONA O TIPO DE RELATORIO
-    time.sleep(3)
-    
-    #Selec Folha
-    driver.execute_script ("document.body.style.zoom='50%'")
-    driver.find_element(By.XPATH, '//*[@id="ordenar"]').click()
-    driver.find_element(By.XPATH, '//*[@id="periodo"]/option[3]').click() #Mudar data de acordo com o requerimento (Atualmente: Janeiro 2025)
-    time.sleep(3)
-
-    #Seleciona OrderBy Data
-    driver.find_element(By.XPATH,'//*[@id="ordenar"]').click()
-    driver.find_element(By.XPATH, "/html/body/div[3]/div[1]/div[2]/div/div/div/div/div/form/table[2]/tbody/tr[9]/td[2]/select/option[2]").click()   
-    driver.find_element(By.XPATH, "/html/body/div[3]/div[1]").click()
-    time.sleep(7)
-    
-    #Seleciona Tipo de arquivo
-    driver.find_element(By.XPATH, "/html/body/div[3]/div[1]/div[2]/div/div/div/div/div/form/table[2]/tbody/tr[12]/td[2]/select").click()
-    driver.find_element(By.XPATH, "/html/body/div[3]/div[1]/div[2]/div/div/div/div/div/form/table[2]/tbody/tr[12]/td[2]/select/option[2]").click()
-    driver.find_element(By.XPATH, "/html/body/div[3]/div[1]/div[2]/div/div/div/div/div/form/table[2]/tbody/tr[12]/td[2]/select/option[2]").click()
-    
-    #Download Arquivo
-    driver.find_element(By.XPATH, "/html/body/div[3]/div[1]/div[2]/div/div/div/div/div/form/table[2]/tbody/tr[13]/td/p/input").click()
-    driver.execute_script ("document.body.style.zoom='100%'")
-    time.sleep(10)
-    
-    renomear_e_mover_arquivos(
-        pasta_origem= pasta_downloads,
-        pasta_destino= rf"C:\Relatórios\{data_pasta}",
-        parametro_nome= "relatorio",
-        novo_nome_base= f"consigfacil_recife_{data_arquivo}"
-    )
-
-    #Começa o login na processadora do PortoVelho
+    #Começa o login na processadora do PortoVelho ##
     driver.get(Proc_PrefPortoVelho)
     User_ConsigFacil = driver.find_element (By.ID, "usuario")
     User_ConsigFacil.clear()
@@ -1476,6 +1319,15 @@ def Relatorios_ConsigFacil():
     except Exception:
         print("Elemento não encontrado!")
 
+    try:
+        element = driver.find_element(By.XPATH, "/html/body/div[3]/div[1]/div[2]/div/div/div/div/div/div[6]/div[2]/ul/div[3]/div/div/div[3]/button[2]")
+        # Aqui o código não interage com o elemento, apenas o armazena em uma variável
+        print("Elemento encontrado!")
+        driver.find_element(By.XPATH, "/html/body/div[3]/div[1]/div[2]/div/div/div/div/div/div[6]/div[2]/ul/div[3]/div/div/div[3]/button[1]").click()
+    except Exception:
+        print("Elemento não encontrado!")
+    time.sleep(2)
+
     #Fecha Janela de novidades
     driver.find_element(By.XPATH,'//*[@id="modalExibeBanners"]/div/div/div[1]/button').click()
     time.sleep(1)
@@ -1495,7 +1347,13 @@ def Relatorios_ConsigFacil():
     driver.find_element(By.XPATH, '//*[@id="objeto_1009"]').click() #SELECIONA O TIPO DE RELATORIO
     time.sleep(3)
     
-    #Selec Folha
+    #DATA INICIO E DATA FIM
+    Selec_Data_inicio = driver.find_element(By.XPATH,"/html/body/div[3]/div[1]/div[2]/div/div/div/div/div/form/table[2]/tbody/tr[3]/td[2]/input")
+    Selec_Data_inicio.send_keys(data_inicio_Mes_ConsigFacil)
+    Selec_Data_Fim = driver.find_element(By.XPATH, "/html/body/div[3]/div[1]/div[2]/div/div/div/div/div/form/table[2]/tbody/tr[3]/td[3]/input")
+    Selec_Data_Fim.send_keys(data_final_Mes_ConsigFacil)
+
+    #Selec período de Folha
     driver.execute_script ("document.body.style.zoom='50%'")
     driver.find_element(By.XPATH, '//*[@id="ordenar"]').click()
     driver.find_element(By.XPATH, '//*[@id="periodo"]/option[3]').click() #Mudar data de acordo com o requerimento (Atualmente: Janeiro 2025)
@@ -1553,6 +1411,15 @@ def Relatorios_ConsigFacil():
     except Exception:
         print("Elemento não encontrado!")
 
+    try:
+        element = driver.find_element(By.XPATH, "/html/body/div[3]/div[1]/div[2]/div/div/div/div/div/div[6]/div[2]/ul/div[3]/div/div/div[3]/button[2]")
+        # Aqui o código não interage com o elemento, apenas o armazena em uma variável
+        print("Elemento encontrado!")
+        driver.find_element(By.XPATH, "/html/body/div[3]/div[1]/div[2]/div/div/div/div/div/div[6]/div[2]/ul/div[3]/div/div/div[3]/button[1]").click()
+    except Exception:
+        print("Elemento não encontrado!")
+    time.sleep(2)
+
     #Fecha Janela de novidades
     driver.find_element(By.XPATH,'//*[@id="modalExibeBanners"]/div/div/div[1]/button').click()
     time.sleep(1)
@@ -1564,8 +1431,6 @@ def Relatorios_ConsigFacil():
         driver.find_element(By.XPATH, "/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/div[6]/div[2]/ul/div[2]/div/div/div[3]/button[1]").click()
     except Exception:
         print("Elemento não encontrado!")
-    
-    
 
     #SELECIONA A ABA RELATÓRIO
     driver.find_element(By.XPATH,'//*[@id="sidebar"]/ul/div[1]/div[2]/div/div/div/li[6]/a').click()
@@ -1633,15 +1498,33 @@ def Relatorios_ConsigFacil():
         print("Elemento não encontrado!")
     time.sleep(2)
 
-    driver.find_element(By.XPATH, "/html/body/div[2]/div[2]/div/div/div[1]/button").click()
+    #Fecha Janela de novidades
+    driver.find_element(By.XPATH,'//*[@id="modalExibeBanners"]/div/div/div[1]/button').click()
+    time.sleep(1)
+
+    try:
+        element = driver.find_element(By.XPATH, "/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/div[6]/div[2]/ul/div[3]/div/div/div[3]/button[1]")
+        # Aqui o código não interage com o elemento, apenas o armazena em uma variável
+        print("Elemento encontrado!")
+        driver.find_element(By.XPATH, "/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/div[6]/div[2]/ul/div[3]/div/div/div[3]/button[1]").click()
+    except Exception:
+        print("Elemento não encontrado!")
+    time.sleep(2)
+
     
     #SELECIONA A ABA RELATÓRIO
     driver.find_element(By.XPATH,'//*[@id="sidebar"]/ul/div[1]/div[2]/div/div/div/li[6]/a').click()
     time.sleep(2)
     driver.find_element(By.XPATH, '/html/body/div[1]/ul/div[1]/div[2]/div/div/div/li[6]/ul/li[2]/a').click() #SELECIONA O TIPO DE RELATORIO
-    time.sleep(1)
+    time.sleep(2)
     driver.find_element(By.XPATH,"/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/form/table[2]/tbody/tr[5]/td[2]/div/select").click()
     time.sleep(2)
+
+    #DATA INICIO E DATA FIM
+    Selec_Data_inicio = driver.find_element(By.XPATH,"/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/form/table[2]/tbody/tr[3]/td[2]/input")
+    Selec_Data_inicio.send_keys(data_inicio_Mes_ConsigFacil)
+    Selec_Data_Fim = driver.find_element(By.XPATH, "/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/form/table[2]/tbody/tr[3]/td[3]/input")
+    Selec_Data_Fim.send_keys(data_final_Mes_ConsigFacil)
     
     #Seleciona tipo de folha
     driver.execute_script ("document.body.style.zoom='50%'")
@@ -1677,7 +1560,7 @@ def Relatorios_ConsigFacil():
         parametro_nome= "relatorio",
         novo_nome_base= f"consigfacil_prefeitura_de_campina_grande_{data_arquivo}"
     )
-    
+
     #Começa o login na processadora da IPSEM de Campina Grande
     driver.get(Proc_IPSEM_CampinaGrande)
     User_ConsigFacil = driver.find_element (By.ID, "usuario")
@@ -1703,6 +1586,7 @@ def Relatorios_ConsigFacil():
         Psw_ConsigFacil = driver.find_element (By.ID, "senha")
         Psw_ConsigFacil.clear()
         Psw_ConsigFacil.send_keys(ConsigFacil_Psw_Values)
+        driver.find_element(By.XPATH,"/html/body/div/div[2]/form/button").click()
     except Exception:
         print("Elemento não encontrado!")
 
@@ -1710,6 +1594,16 @@ def Relatorios_ConsigFacil():
     
     #Fecha Janela de novidades
     driver.find_element(By.XPATH,'//*[@id="modalExibeBanners"]/div/div/div[1]/button').click()
+    time.sleep(1)
+
+    try:
+        element = driver.find_element(By.XPATH, "/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/div[6]/div[2]/ul/div[3]/div/div/div[3]/button[1]")
+        # Aqui o código não interage com o elemento, apenas o armazena em uma variável
+        print("Elemento encontrado!")
+        driver.find_element(By.XPATH, "/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/div[6]/div[2]/ul/div[3]/div/div/div[3]/button[1]").click()
+    except Exception:
+        print("Elemento não encontrado!")
+    time.sleep(2)
     time.sleep(1)
     
     #SELECIONA A ABA RELATÓRIO
@@ -1720,6 +1614,12 @@ def Relatorios_ConsigFacil():
     driver.find_element(By.XPATH,"/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/form/table[2]/tbody/tr[5]/td[2]/div/select").click()
     time.sleep(2)
     
+    #DATA INICIO E DATA FIM
+    Selec_Data_inicio = driver.find_element(By.XPATH,"/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/form/table[2]/tbody/tr[3]/td[2]/input")
+    Selec_Data_inicio.send_keys(data_inicio_Mes_ConsigFacil)
+    Selec_Data_Fim = driver.find_element(By.XPATH, "/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/form/table[2]/tbody/tr[3]/td[3]/input")
+    Selec_Data_Fim.send_keys(data_final_Mes_ConsigFacil)
+
     #Seleciona tipo de folha
     driver.execute_script ("document.body.style.zoom='50%'")
     driver.find_element(By.XPATH, "/html/body/div[2]/div[1]/div[2]/div/div/div/div/div/form/table[2]/tbody/tr[4]/td[2]/select").click()
@@ -2112,7 +2012,7 @@ def Relatorios_ProcRJ():
         time.sleep(2)
 
         #Seleciona Arquivo CSV Export
-        driver.find_element(By.XPATH, '//*[@id="content"]/div[2]/div/div/div[1]/div[3]/div[3]/div/div/div/a[2]').click()
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div[2]/div/div[2]/div/div/div[1]/div[3]/div[3]/div/div/div/a[2]").click()
         time.sleep(25)
          
         #Renomeia e move arquivo
@@ -2120,7 +2020,7 @@ def Relatorios_ProcRJ():
         pasta_origem= pasta_downloads,
         pasta_destino= rf"C:\Relatórios\{data_pasta}",
         parametro_nome= "operacaoEmprestimo",
-        novo_nome_base= f"neoconsig_prefeitura_do_rio_de_janeiro{data_arquivo}"
+        novo_nome_base= f"neoconsig_prefeitura_do_rio_de_janeiro_{data_arquivo}"
         )
 
 #Login BPO e extração de relatório (Se Necessário)---------------------------------------------------------
@@ -2175,6 +2075,6 @@ elif RodarProcsVPN =='N':
 else:
     print("")
 
-Relatorios_ProcRJ() #100% Funcional Relatório Definitivo
+#Relatorios_ProcRJ() #100% Funcional Relatório Definitivo
 
 Relatorios_BPO() #100% Funcional Relatório Definitivo
